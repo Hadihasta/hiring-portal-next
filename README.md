@@ -50,3 +50,7 @@ npx prisma init
 npx prisma migrate dev 
 
 note : delete dir migration in ./prisma/migration (i keep it for track my own migration)
+
+you can add your own local account credential using prisma studio 
+run :
+npx prisma studio
