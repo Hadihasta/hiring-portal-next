@@ -1,0 +1,114 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model users {
+  id           BigInt    @id
+  email        String    @unique
+  password     String
+  phone_number String
+  name         String    @db.VarChar
+  role         String    @db.VarChar // admin | applicant
+  is_active    Boolean   @default(true)
+  created_at   DateTime  @default(now()) @db.Timestamptz
+  updated_at   DateTime  @default(now()) @db.Timestamptz
+
+  // Relations
+  jobs        jobs[]       @relation("UserJobs")
+  candidates  candidates[]
+
+  @@map("users")
+}
+
+model jobs {
+  id               BigInt    @id
+  slug             String    @unique
+  title            String
+  description      String
+  candidate_needed BigInt
+  job_type         String?   @db.VarChar // Full-time, Part-time, Internship, etc.
+  status           String?   @default("draft") // active | inactive | draft
+  salary_min       BigInt?
+  salary_max       BigInt?
+  currency         String?   @default("IDR")
+  created_by       BigInt
+  created_at       DateTime? @default(now()) @db.Timestamptz
+  updated_at       DateTime? @default(now()) @db.Timestamptz
+
+  // Relations
+  creator           users              @relation("UserJobs", fields: [created_by], references: [id])
+  job_configurations job_configurations[]
+  candidates         candidates[]
+
+  @@map("jobs")
+}
+
+model job_configurations {
+  id          BigInt   @id
+  job_id      BigInt
+  field_key   String   @db.VarChar // ex: full_name, email, phone_number
+  label       String   @db.VarChar // Label field yang tampil di form
+  required    Boolean  @default(false) // true = wajib diisi
+  order_index Int?
+  visible     Boolean  @default(true)
+
+  // Relations
+  job jobs @relation(fields: [job_id], references: [id], onDelete: Cascade)
+
+  @@map("job_configurations")
+}
+
+model candidates {
+  id          BigInt    @id
+  user_id     BigInt
+  job_id      BigInt
+  applied_at  DateTime? @default(now()) @db.Timestamptz
+  status      String?   @default("submitted") // submitted | reviewed | accepted | rejected
+
+  // Relations
+  user      users      @relation(fields: [user_id], references: [id])
+  job       jobs       @relation(fields: [job_id], references: [id], onDelete: Cascade)
+  attributes candidate_attributes[]
+  photos     photos[]
+
+  @@map("candidates")
+}
+
+model candidate_attributes {
+  id           BigInt   @id
+  candidate_id BigInt
+  key          String   @db.VarChar // ex: full_name, gender, domicile
+  label        String?  @db.VarChar // Label field
+  value        String?  @db.Text    // Isi data dari form
+  order_index  Int?
+
+  // Relations
+  candidate candidates @relation(fields: [candidate_id], references: [id], onDelete: Cascade)
+
+  @@map("candidate_attributes")
+}
+
+model photos {
+  id               BigInt    @id
+  candidate_id     BigInt
+  photo_url        String    @db.Text
+  gesture_detected String?   @db.VarChar // Pose 1, Pose 2, Pose 3
+  captured_at      DateTime? @default(now()) @db.Timestamptz
+
+  // Relations
+  candidate candidates @relation(fields: [candidate_id], references: [id], onDelete: Cascade)
+
+  @@map("photos")
+}
