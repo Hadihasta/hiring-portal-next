@@ -1,8 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// prisma/schema.prisma
 
 generator client {
   provider = "prisma-client-js"
@@ -15,7 +11,7 @@ datasource db {
 }
 
 model users {
-  id           BigInt    @id
+  id           BigInt    @id @default(autoincrement())
   email        String    @unique
   password     String
   phone_number String
@@ -33,7 +29,7 @@ model users {
 }
 
 model jobs {
-  id               BigInt    @id
+  id               BigInt    @id @default(autoincrement())
   slug             String    @unique
   title            String
   description      String
@@ -48,7 +44,7 @@ model jobs {
   updated_at       DateTime? @default(now()) @db.Timestamptz
 
   // Relations
-  creator           users              @relation("UserJobs", fields: [created_by], references: [id])
+  creator            users              @relation("UserJobs", fields: [created_by], references: [id])
   job_configurations job_configurations[]
   candidates         candidates[]
 
@@ -56,7 +52,7 @@ model jobs {
 }
 
 model job_configurations {
-  id          BigInt   @id
+  id          BigInt   @id @default(autoincrement())
   job_id      BigInt
   field_key   String   @db.VarChar // ex: full_name, email, phone_number
   label       String   @db.VarChar // Label field yang tampil di form
@@ -71,7 +67,7 @@ model job_configurations {
 }
 
 model candidates {
-  id          BigInt    @id
+  id          BigInt    @id @default(autoincrement())
   user_id     BigInt
   job_id      BigInt
   applied_at  DateTime? @default(now()) @db.Timestamptz
@@ -87,7 +83,7 @@ model candidates {
 }
 
 model candidate_attributes {
-  id           BigInt   @id
+  id           BigInt   @id @default(autoincrement())
   candidate_id BigInt
   key          String   @db.VarChar // ex: full_name, gender, domicile
   label        String?  @db.VarChar // Label field
@@ -101,7 +97,7 @@ model candidate_attributes {
 }
 
 model photos {
-  id               BigInt    @id
+  id               BigInt    @id @default(autoincrement())
   candidate_id     BigInt
   photo_url        String    @db.Text
   gesture_detected String?   @db.VarChar // Pose 1, Pose 2, Pose 3
