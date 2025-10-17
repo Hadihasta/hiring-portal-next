@@ -1,0 +1,23 @@
+services:
+  db:
+    image: postgres:16.3
+    container_name: postgres-db-hiring
+    environment:
+      POSTGRES_DB: hiring_portal
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - backend
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+# define volumes (optional but good practice)
+volumes:
+  db-data:
+
+# define network
+networks:
+  backend:
+    driver: bridge
