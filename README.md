@@ -47,6 +47,7 @@ docker compose up --build
 run : 
 npx prisma init
 <!-- ganti env_example  to .env sesuaikan credential DB connection -->
+<!--  e.gDATABASE_URL=postgresql://root:root@localhost:5432/postgres?connection_limit=5&pool_timeout=0 -->
 npx prisma migrate dev 
 
 note : delete dir migration in ./prisma/migration (i keep it for track my own migration)
