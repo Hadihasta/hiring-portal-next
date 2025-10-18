@@ -53,11 +53,10 @@ export default function Home() {
 
   const fetchData = async () => {
     try {
-     
-        const payload = {
-      email: state.email,
-      password: state.password,
-    }
+      const payload = {
+        email: state.email,
+        password: state.password,
+      }
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, payload)
       console.log(res)
     } catch (error) {

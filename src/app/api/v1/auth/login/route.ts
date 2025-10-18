@@ -6,8 +6,6 @@ export async function POST(req: Request) {
   try {
     const { email, password } = await req.json()
 
-    console.log(email, password, " <<<< ")
-
     // Cek apakah email & password diisi
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
@@ -38,7 +36,7 @@ export async function POST(req: Request) {
     return NextResponse.json({
       message: 'Login successful',
       token,
-      user: {
+      data: {
         // bigint tidak bisa di-serialize ke JSON, jadi di-convert ke number
         id: Number(user.id),
         email: user.email,

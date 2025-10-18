@@ -61,3 +61,14 @@ run :
 
 note : 
 * im not implement register with bycrpt, add your own credentials with "npx prisma studio"
+
+
+
+login credential : 
+role : user
+email : user@gmail.com
+password : user
+
+role : admin 
+email : admin@gmail.com
+password : admin
