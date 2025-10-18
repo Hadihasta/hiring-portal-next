@@ -40,17 +40,35 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 # Docker for server
  <!--run from root dir (pastikan docker-compose.yml ada)  -->
 run : 
-docker compose up --build  
+"docker compose up --build  "
 
 # Prisma for migrate and init the database
 <!-- Npm i pastikan prisma dan prisma client ada -->
 run : 
-npx prisma init
+"npx prisma init"
 <!-- ganti env_example  to .env sesuaikan credential DB connection -->
-npx prisma migrate dev 
+<!--  e.gDATABASE_URL=postgresql://root:root@localhost:5432/postgres?connection_limit=5&pool_timeout=0 -->
+"npx prisma migrate dev"
+
+"npx prisma generate"
 
 note : delete dir migration in ./prisma/migration (i keep it for track my own migration)
 
 you can add your own local account credential using prisma studio 
 run :
-npx prisma studio
+"npx prisma studio"
+
+
+note : 
+* im not implement register with bycrpt, add your own credentials with "npx prisma studio"
+
+
+
+login credential : 
+role : user
+email : user@gmail.com
+password : user
+
+role : admin 
+email : admin@gmail.com
+password : admin

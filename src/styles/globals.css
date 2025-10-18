@@ -1,0 +1,78 @@
+@import 'tailwindcss';
+
+:root {
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-nunito);
+  --font-mono: var(--font-nunito);
+
+  /* padding */
+  --paddingButton: 6px 16px;
+
+  /* color */
+  --color-yellowBg: #fbc037;
+  --color-yellowHover: #FA9810;
+  --color-greenPrimary: #01959f;
+}
+
+/* font size */
+/* text-xs = 12px */
+/* text-sm = 14px */
+/* text-base = 16px */
+/* text-lg = 18px */
+/* text-xl = 20px */
+
+/* shadow box */
+@theme {
+  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+}
+
+/* changed to light from dark */
+@media (prefers-color-scheme: light) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  font-family: var(--font-nunito), sans-serif;
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* custom */
+.input-field {
+  border: 2px solid rgb(224, 224, 224);
+  border-radius: 8px;
+  height: 100%;
+  font-size: 14px;
+  line-height: 30px;
+  padding: 8px 16px;
+  background-repeat: no-repeat;
+  background-position: 95% 50%;
+  color: rgb(64, 64, 64);
+}
+
+.button-outline {
+  border: 1px solid rgb(224, 224, 224);
+  border-radius: 8px;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+
+  cursor: pointer;
+  width: 100%;
+}
