@@ -26,12 +26,9 @@
 /* text-lg = 18px */
 /* text-xl = 20px */
 
-
-
-
 /* shadow box */
 @theme {
-  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px; 
+  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 }
 
 /* changed to light from dark */
@@ -61,4 +58,22 @@ body {
   background-repeat: no-repeat;
   background-position: 95% 50%;
   color: rgb(64, 64, 64);
+}
+
+.button-outline {
+  border: 1px solid rgb(224, 224, 224);
+  border-radius: 8px;
+  display: flex;
+  -webkit-box-align: center;
+  -webkit-box-pack: center;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  font-weight: 700;
+  font-size: 14px;
+  line-height: 20px;
+
+  cursor: pointer;
+  width: 100%;
 }

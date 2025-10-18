@@ -39,10 +39,17 @@ export default function Home() {
           <span className="font-bold text-base">Masuk</span>
         </button>
 
-        <span>atau</span>
+        <div className="flex items-center w-full text-gray-400  text-xs">
+          <div className="flex-1 h-px bg-[#E0E0E0]"></div>
+          <span className="px-3">atau</span>
+          <div className="flex-1 h-px bg-[#E0E0E0]"></div>
+        </div>
 
-        <div>Masuk dengan link via email</div>
-        <div>Masuk dengan Google</div>
+
+      
+        <button className="button-outline hover:bg-gray-50">Masuk dengan link via email</button>
+        <button className="button-outline hover:bg-gray-50">Masuk dengan Google</button>
+        
       </main>
       {/* <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
       </footer> */}
