@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 const nunito = Nunito({
   variable: "--font-nunito",
   subsets: ["latin"],
-  weight: ["400", "600", "700"], // customize weights as needed
+  weight: ["400", "600", "700"], 
 });
 
 

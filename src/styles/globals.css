@@ -11,10 +11,27 @@
   --font-sans: var(--font-nunito);
   --font-mono: var(--font-nunito);
 
+  /* padding */
+  --paddingButton: 6px 16px;
 
-/* color */
-   --color-yellowBg: #FBC037; 
-   --color-greenPrimary: #01959F; 
+  /* color */
+  --color-yellowBg: #fbc037;
+  --color-greenPrimary: #01959f;
+}
+
+/* font size */
+/* text-xs = 12px */
+/* text-sm = 14px */
+/* text-base = 16px */
+/* text-lg = 18px */
+/* text-xl = 20px */
+
+
+
+
+/* shadow box */
+@theme {
+  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px; 
 }
 
 /* changed to light from dark */
@@ -29,4 +46,19 @@ body {
   font-family: var(--font-nunito), sans-serif;
   background: var(--background);
   color: var(--foreground);
+}
+
+/* custom */
+.input-field {
+  /* position: relative; */
+  border: 2px solid rgb(224, 224, 224);
+  border-radius: 8px;
+  /* width: 100%; */
+  height: 100%;
+  font-size: 14px;
+  line-height: 30px;
+  padding: 8px 16px;
+  background-repeat: no-repeat;
+  background-position: 95% 50%;
+  color: rgb(64, 64, 64);
 }
