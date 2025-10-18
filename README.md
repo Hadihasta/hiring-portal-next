@@ -50,6 +50,8 @@ npx prisma init
 <!--  e.gDATABASE_URL=postgresql://root:root@localhost:5432/postgres?connection_limit=5&pool_timeout=0 -->
 npx prisma migrate dev 
 
+npx prisma generate
+
 note : delete dir migration in ./prisma/migration (i keep it for track my own migration)
 
 you can add your own local account credential using prisma studio 
