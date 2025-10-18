@@ -10,9 +10,15 @@
   --color-foreground: var(--foreground);
   --font-sans: var(--font-nunito);
   --font-mono: var(--font-nunito);
+
+
+/* color */
+   --color-yellowBg: #FBC037; 
+   --color-greenPrimary: #01959F; 
 }
 
-@media (prefers-color-scheme: dark) {
+/* changed to light from dark */
+@media (prefers-color-scheme: light) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
