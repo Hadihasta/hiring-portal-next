@@ -1,6 +1,7 @@
 'use client'
-import axios from 'axios'
 import { useReducer, ChangeEvent } from 'react'
+import { login } from '@/services/authService'
+import { useRouter } from 'next/navigation'
 
 interface State {
   email: string
@@ -28,6 +29,7 @@ function stateReducer(state: State, action: CounterAction): State {
 }
 
 export default function Home() {
+  const router = useRouter()
   const [state, dispatch] = useReducer(stateReducer, initialState)
 
   const handleEmailChange = (e: ChangeEvent<HTMLInputElement>) => {
@@ -39,8 +41,6 @@ export default function Home() {
   }
 
   const handleClick = () => {
-    console.log('Email:', state.email)
-    console.log('Password:', state.password)
     fetchData()
   }
 
@@ -57,13 +57,22 @@ export default function Home() {
         email: state.email,
         password: state.password,
       }
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, payload)
+      const res = await login(payload)
       console.log(res)
+
+    
+
+      if (res.role === 'user') {
+        router.push('/home')
+      }
+
+      if (res.role === 'admin') {
+        router.push('/dashboard')
+      }
     } catch (error) {
       console.error('Gagal mengambil data:', error)
     }
   }
-
   return (
     <div
       className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20"
