@@ -20,10 +20,10 @@ const Button: React.FC<ButtonProps> = ({
   onClick,
   className,
 }) => {
-  const defaultStyle = 'font-bold p-[var(--paddingButton)] rounded-lg transition-colors duration-200 '
+  const defaultStyle = 'font-bold p-[var(--paddingButton)] rounded-lg transition-colors duration-200 cursor-pointer '
 
   const colorStyle =
-    color === 'yellow' ? 'bg-yellowBg rounded-lg hover:bg-yellowHover ' : 'bg-greenPrimary hover:bg-green-600'
+    color === 'yellow' ? 'bg-yellowBg rounded-lg hover:bg-yellowHover ' : 'bg-greenPrimary hover:bg-greenHover '
 
   return (
     <button

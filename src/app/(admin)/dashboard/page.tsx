@@ -1,15 +1,18 @@
 'use client'
-import React from 'react'
+import React, { useState } from 'react'
 import Image from 'next/image'
 import Button from '@/components/global/Button'
+import ImageButton from '@/components/admin/jobs/dashboard/ImageButton'
+import ModalJobOpeningForm from '@/components/admin/jobs/dashboard/ModalJobOpeningForm'
 
 const Page = () => {
-
-    const handleClick = () => {
-console.log("Button clicked")
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const handleClick = () => {
+    setIsModalOpen(true)
+    console.log('Button clicked')
   }
   return (
-    <div className="flex m-(--paddingMainPage) gap-[24px] h-[calc(94vh-32px)] px-[16px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-greenPrimary scrollbar-track-greyTrack overflow-y-scroll">
+    <div className="flex m-(--paddingMainPage) gap-[24px] h-[calc(94vh-32px)] pr-[16px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-greenPrimary scrollbar-track-greyTrack overflow-y-scroll">
       {/* search bar & order list */}
       <div
         id="jobs"
@@ -46,28 +49,20 @@ console.log("Button clicked")
 
           <p className="text-xl font-bold">No job openings available</p>
           <div className="text-greyNeutral text-base">Create a job now and start the candidate process</div>
-            <Button onClick={handleClick}  color={'yellow'} label='Create a new job'/>
+          <Button
+            onClick={handleClick}
+            color={'yellow'}
+            label="Create a new job"
+          />
+          <ModalJobOpeningForm
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+          />
         </div>
       </div>
 
       {/* image with overlay */}
-      <div
-        id="image_background_button"
-        className="flex-none relative w-[300px] h-[168px] rounded-xl overflow-hidden"
-      >
-        {/* background image */}
-        <div>
-          <Image
-            src="/asset/global/background-mask.jpg"
-            alt="Illustration Dashboard"
-            fill
-            className="object-cover"
-          />
-          {/* black overlay */}
-          <div className="absolute inset-0 bg-black/50"></div>
-        </div>
-        <div className="relative"> recruite the best candidate </div>
-      </div>
+      <ImageButton onClick={handleClick} />
     </div>
   )
 }
