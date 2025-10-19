@@ -1,10 +1,15 @@
+'use client'
 import React from 'react'
 import Image from 'next/image'
+import Button from '@/components/global/Button'
 
 const Page = () => {
+
+    const handleClick = () => {
+console.log("Button clicked")
+  }
   return (
     <div className="flex m-(--paddingMainPage) gap-[24px] h-[calc(94vh-32px)] px-[16px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-greenPrimary scrollbar-track-greyTrack overflow-y-scroll">
- 
       {/* search bar & order list */}
       <div
         id="jobs"
@@ -39,14 +44,10 @@ const Page = () => {
             />
           </div>
 
-          <p className="text-lg font-semibold">No job openings available</p>
-          <div className="text-gray-500 text-sm">Create a job now and start the candidate process</div>
-          <button className="bg-greenPrimary hover:bg-green-600 text-white px-4 py-2 rounded-md mt-3">
-            Create a new job
-          </button>
+          <p className="text-xl font-bold">No job openings available</p>
+          <div className="text-greyNeutral text-base">Create a job now and start the candidate process</div>
+            <Button onClick={handleClick}  color={'yellow'} label='Create a new job'/>
         </div>
-
-      
       </div>
 
       {/* image with overlay */}
@@ -67,8 +68,6 @@ const Page = () => {
         </div>
         <div className="relative"> recruite the best candidate </div>
       </div>
-
-  
     </div>
   )
 }
