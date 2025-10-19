@@ -1,4 +1,5 @@
 @import 'tailwindcss';
+@plugin 'tailwind-scrollbar';
 
 :root {
   --background: #ffffff;
@@ -13,15 +14,15 @@
 
   /* padding */
   --paddingButton: 6px 16px;
+  --paddingMainPage: 16px 26px;
 
   /* color */
   --color-yellowBg: #fbc037;
   --color-yellowHover: #fa9810;
   --color-greenPrimary: #01959f;
   --color-greyBorder: #e0e0e0;
+  --color-greyTrack: #E6E6E6;
   --color-white: #ffffff;
-
-  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 
   /* font size */
   /* text-xs = 12px */
@@ -31,7 +32,13 @@
   /* text-xl = 20px */
 
   /* shadow box */
+  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
 }
+
+/* shadow box */
+/* @theme {
+  --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+} */
 
 /* changed to light from dark */
 @media (prefers-color-scheme: light) {
@@ -73,7 +80,22 @@ body {
   font-weight: 700;
   font-size: 14px;
   line-height: 20px;
-
   cursor: pointer;
   width: 100%;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+::-webkit-scrollbar-track {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb {
+  display: none;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  display: none;
 }

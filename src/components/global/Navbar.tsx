@@ -12,7 +12,7 @@ interface NavbarProps {
 // gunakan src untuk gambar profil, jika tidak ada gunakan gambar default
 const Navbar = ({ label, src }: NavbarProps) => {
   return (
-    <div className="flex justify-between items-center h-[64px] w-full border border-greyBorder bg-white px-4">
+    <div className="flex justify-between items-center h-[6vh] w-full border border-greyBorder bg-white px-4">
       <div className="font-bold text-xl">{label}</div>
 
       <div className="w-8 h-8 rounded-full overflow-hidden border border-gray-300">

@@ -1,0 +1,25 @@
+/* .layout {
+  height: 100vh;
+  overflow-y: auto;
+  scrollbar-width: thin; 
+  scrollbar-color: #01959f #e0e0e0;
+}
+
+
+.layout::-webkit-scrollbar {
+  width: 8px;
+}
+
+.layout::-webkit-scrollbar-track {
+  background: #e0e0e0;
+  border-radius: 4px;
+}
+
+.layout::-webkit-scrollbar-thumb {
+  background-color: #01959f;
+  border-radius: 4px;
+}
+
+.layout::-webkit-scrollbar-thumb:hover {
+  background-color: #017f86;
+} */
