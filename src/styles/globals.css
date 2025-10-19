@@ -18,6 +18,8 @@
   --color-yellowBg: #fbc037;
   --color-yellowHover: #FA9810;
   --color-greenPrimary: #01959f;
+  --color-greyBorder: #E0E0E0;
+  --color-white: #FFFFFF;
 }
 
 /* font size */
@@ -76,3 +78,4 @@ body {
   cursor: pointer;
   width: 100%;
 }
+

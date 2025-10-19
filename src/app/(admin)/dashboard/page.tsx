@@ -1,8 +1,11 @@
 import React from 'react'
+import Navbar from '@/components/global/Navbar'
 
 const page = () => {
   return (
-    <div>admin</div>
+    <div>
+      <Navbar  label={'Job List'} src='/asset/global/TemplateAdmin.jpg'/>
+    </div>
   )
 }
 
