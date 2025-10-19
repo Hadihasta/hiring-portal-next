@@ -59,7 +59,7 @@ export default function Home() {
         password: state.password,
       }
       const res = await login(payload)
-      console.log(res)
+      // console.log(res)
 
     
 
