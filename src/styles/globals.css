@@ -15,6 +15,7 @@
   /* padding */
   --paddingButton: 6px 16px;
   --paddingMainPage: 16px 26px;
+   --HeadForm: 24px; 
 
   /* color */
   --color-yellowBg: #fbc037;
@@ -100,4 +101,9 @@ body {
 
 ::-webkit-scrollbar-thumb:hover {
   display: none;
+}
+
+
+#Head_form {
+  padding: 24px;
 }
