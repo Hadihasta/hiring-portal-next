@@ -16,22 +16,21 @@
 
   /* color */
   --color-yellowBg: #fbc037;
-  --color-yellowHover: #FA9810;
+  --color-yellowHover: #fa9810;
   --color-greenPrimary: #01959f;
-  --color-greyBorder: #E0E0E0;
-  --color-white: #FFFFFF;
-}
+  --color-greyBorder: #e0e0e0;
+  --color-white: #ffffff;
 
-/* font size */
-/* text-xs = 12px */
-/* text-sm = 14px */
-/* text-base = 16px */
-/* text-lg = 18px */
-/* text-xl = 20px */
-
-/* shadow box */
-@theme {
   --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;
+
+  /* font size */
+  /* text-xs = 12px */
+  /* text-sm = 14px */
+  /* text-base = 16px */
+  /* text-lg = 18px */
+  /* text-xl = 20px */
+
+  /* shadow box */
 }
 
 /* changed to light from dark */
@@ -78,4 +77,3 @@ body {
   cursor: pointer;
   width: 100%;
 }
-
