@@ -3,6 +3,8 @@
 import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { getJob } from '@/services/jobsService'
+import { getJobNumber } from '@/lib/getJobNumber'
+import { useRouter } from 'next/navigation'
 
 export interface JobItem {
   id: string
@@ -28,6 +30,8 @@ const Page = () => {
   const [loading, setLoading] = useState(true)
   const [selectedJob, setSelectedJob] = useState<JobItem | null>(null)
 
+  const router = useRouter()
+
   const fetchFirstData = async () => {
     try {
       const res = await getJob()
@@ -52,11 +56,10 @@ const Page = () => {
     )
   }
 
-
-   const handleApplyButton = (job: JobItem) => {
-    console.log('Selected Job:', job)
-    // you can redirect or open a modal later
-    // example: router.push(`/apply/${job.id}`)
+  const handleApplyButton = (job: JobItem) => {
+    const jobNumber = getJobNumber(job.id)
+    router.push(`/apply-job-form/${jobNumber}`)
+    console.log('Selected Job:', jobNumber)
   }
   //  Empty state — when no jobs are available
   if (listJobs.length === 0) {
@@ -72,9 +75,7 @@ const Page = () => {
         </div>
 
         <p className="text-xl font-bold">No job openings available</p>
-        <div className="text-greyNeutral text-base">
-          Please wait for the next batch of openings
-        </div>
+        <div className="text-greyNeutral text-base">Please wait for the next batch of openings</div>
       </div>
     )
   }
@@ -88,7 +89,7 @@ const Page = () => {
           id="jobsDisplay"
           className="w-[384px] flex flex-col gap-4 overflow-y-auto pr-2"
         >
-          {listJobs.map((job,index) => (
+          {listJobs.map((job, index) => (
             <div
               key={index}
               onClick={() => setSelectedJob(job)}
@@ -111,13 +112,9 @@ const Page = () => {
 
                 {/* Info */}
                 <div className="flex flex-col gap-1">
-                  <h3 className="text-[16px] font-semibold text-gray-800">
-                    {job.title}
-                  </h3>
+                  <h3 className="text-[16px] font-semibold text-gray-800">{job.title}</h3>
                   <p className="text-sm text-gray-600">Rakamin</p>
-                  <p className="text-sm text-gray-700 font-medium">
-                    {job.salary_range.display_text}
-                  </p>
+                  <p className="text-sm text-gray-700 font-medium">{job.salary_range.display_text}</p>
                 </div>
               </div>
             </div>
@@ -145,14 +142,15 @@ const Page = () => {
                   <span className="bg-successText text-white px-4 py-1 text-xs font-medium rounded-sm w-fit">
                     {selectedJob.list_card.badge}
                   </span>
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {selectedJob.title}
-                  </h2>
+                  <h2 className="text-xl font-semibold text-gray-800">{selectedJob.title}</h2>
                   <p className="text-sm text-gray-600">Rakamin</p>
                 </div>
               </div>
 
-              <button onClick={() => handleApplyButton(selectedJob)} className="bg-yellowBg hover:bg-yellowHover font-bold px-5 py-2 rounded-lg text-sm transition">
+              <button
+                onClick={() => handleApplyButton(selectedJob)}
+                className="bg-yellowBg hover:bg-yellowHover font-bold px-5 py-2 rounded-lg text-sm transition"
+              >
                 Apply
               </button>
             </div>
@@ -160,7 +158,6 @@ const Page = () => {
             {/* Job Description */}
             <div className="text-gray-700 text-sm leading-relaxed space-y-3">
               <p className="whitespace-pre-line">{selectedJob.description}</p>
-             
             </div>
           </div>
         )}
