@@ -30,8 +30,25 @@ export async function createJob(payload: CreateJob) {
 }
 
 
+export interface JobItem {
+  id: string
+  slug: string
+  title: string
+  status: string
+  salary_range: {
+    min: number
+    max: number
+    currency: string
+    display_text: string
+  }
+  list_card: {
+    badge: string
+    started_on_text: string
+    cta: string
+  }
+}
 
-export async function getJob() {
+export async function getJob(): Promise<JobItem[]> {
   try {
     const res = await axios.get('/jobs/getalljobs')
     return res.data.data

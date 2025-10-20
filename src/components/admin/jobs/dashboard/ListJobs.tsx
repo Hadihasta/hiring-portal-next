@@ -33,9 +33,9 @@ interface ListJobsProps {
 }
 
 const statusBadgeColor: Record<string, string> = {
-  active: 'bg-green-100 text-green-700 border border-green-300',
-  inactive: 'bg-red-100 text-red-700 border border-red-300',
-  draft: 'bg-yellow-100 text-yellow-700 border border-yellow-300',
+  active: 'bg-successBg text-successText border border-successBorder',
+  inactive: 'bg-dangerBg text-dangerText border border-dangerBorder',
+  draft: 'bg-warningBg text-warningText border border-warningBorder',
 }
 
 const ListJobs: React.FC<ListJobsProps> = ({ data }) => {
@@ -48,7 +48,8 @@ const ListJobs: React.FC<ListJobsProps> = ({ data }) => {
     router.push(`/managecandidate/${jobNumber}`)
   }
   if (!data || data.length === 0) {
-    return <div className="flex flex-col justify-center items-center py-12 text-gray-500">No job openings found.</div>
+    return 
+    // <div className="flex flex-col justify-center items-center py-12 text-gray-500">No job openings found.</div>
   }
 
   return (

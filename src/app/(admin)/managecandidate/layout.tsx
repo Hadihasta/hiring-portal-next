@@ -1,7 +1,7 @@
 'use client'
 
 import React from 'react'
-import styles from './layout.module.css' // optional, for styling
+// import styles from './layout.module.css' // optional, for styling
 
 export default function ManageCandidateLayout({
   children,
