@@ -15,20 +15,33 @@
   /* padding */
   --paddingButton: 6px 16px;
   --paddingMainPage: 16px 26px;
-   --HeadForm: 24px; 
+  --HeadForm: 24px;
 
   /* color */
   --color-yellowBg: #fbc037;
   --color-yellowHover: #fa9810;
   --color-greenPrimary: #01959f;
-  --color-greenHover: #017A84;
+  --color-greenHover: #017a84;
   --color-greyBorder: #e0e0e0;
-  --color-greyOutline: #EDEDED;
-  --color-greyTrack: #E6E6E6;
+  --color-greyOutline: #ededed;
+  --color-greyTrack: #e6e6e6;
   --color-greyNeutral: #404040;
-  --color-redDanger: #E11428;
-  --color-greyTextDisable: #9E9E9E;
+  --color-greyText: #616161;
+  --color-redDanger: #e11428;
+  --color-greyTextDisable: #9e9e9e;
   --color-white: #ffffff;
+
+  --color-successText: #43936C;
+  --color-successBg: #F8FBF9;
+  --color-successBorder: #B8DBCA;
+
+  --color-dangerText: #E11428;
+  --color-dangerBg: #FFFAFA;
+  --color-dangerBorder: #f5b1b7;
+
+  --color-warningText: #FBC037;
+  --color-warningBg: #FFFCF5;
+  --color-warningBorder: #FEEABC;
 
   /* font size */
   /* text-xs = 12px */
@@ -105,7 +118,6 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   display: none;
 }
-
 
 #Head_form {
   padding: 24px;
