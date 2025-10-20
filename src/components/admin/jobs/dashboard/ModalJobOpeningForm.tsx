@@ -25,6 +25,42 @@ interface State {
     numberCandidate: boolean
   }
   firstLoad: boolean
+  fields: RequirementProps
+}
+
+interface RequirementProps {
+  full_name: {
+    required: boolean
+    visible: boolean
+  }
+  photo_profile: {
+    required: boolean
+    visible: boolean
+  }
+  gender: {
+    required: boolean
+    visible: boolean
+  }
+  domicile: {
+    required: boolean
+    visible: boolean
+  }
+  email: {
+    required: boolean
+    visible: boolean
+  }
+  phone_number: {
+    required: boolean
+    visible: boolean
+  }
+  linkedin_link: {
+    required: boolean
+    visible: boolean
+  }
+  date_of_birth: {
+    required: boolean
+    visible: boolean
+  }
 }
 
 type ActionForm =
@@ -37,6 +73,11 @@ type ActionForm =
   | { type: 'setmaxSalary'; value: State['maxSalary'] }
   | { type: 'setError'; field: keyof State['errors']; value: boolean }
   | { type: 'setFirstLoad'; value: State['firstLoad'] }
+  | {
+      type: 'setRequirement'
+      field: keyof RequirementProps
+      mode: 'mandatory' | 'optional' | 'off'
+    }
 
 const initialState: State = {
   jobName: '',
@@ -52,6 +93,16 @@ const initialState: State = {
     numberCandidate: false,
   },
   firstLoad: false,
+  fields: {
+    full_name: { required: true, visible: true },
+    photo_profile: { required: true, visible: true },
+    gender: { required: false, visible: true },
+    domicile: { required: false, visible: true },
+    email: { required: true, visible: true },
+    phone_number: { required: true, visible: true },
+    linkedin_link: { required: false, visible: true },
+    date_of_birth: { required: false, visible: true },
+  },
 }
 
 function stateReducer(state: State, action: ActionForm): State {
@@ -77,6 +128,27 @@ function stateReducer(state: State, action: ActionForm): State {
       }
     case 'setFirstLoad':
       return { ...state, firstLoad: action.value }
+    case 'setRequirement': {
+      const { field, mode } = action
+      let updated = { ...state.fields[field] }
+
+      switch (mode) {
+        case 'mandatory':
+          updated = { required: true, visible: true }
+          break
+        case 'optional':
+          updated = { required: false, visible: true }
+          break
+        case 'off':
+          updated = { required: false, visible: false }
+          break
+      }
+
+      return {
+        ...state,
+        fields: { ...state.fields, [field]: updated },
+      }
+    }
 
     default:
       throw new Error('Unknown action')
@@ -183,6 +255,10 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
         return 'Field required'
     }
   }
+
+  const handleMandatory = (field: keyof RequirementProps, mode: 'mandatory' | 'optional' | 'off') => {
+    dispatch({ type: 'setRequirement', field, mode })
+  }
   return (
     <AnimatePresence>
       {isOpen && (
@@ -226,7 +302,7 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
                 <input
                   type="text"
                   placeholder="Ex: Front End Engineer"
-                  className={`w-full border border-greyBorderInput rounded-md p-2 focus:outline-none focus:ring-2 ${
+                  className={`w-full border border-greyBorder rounded-md p-2 focus:outline-none focus:ring-2 ${
                     state.errors.jobName ? 'border-redDanger focus:ring-redDanger' : 'focus:ring-greenPrimary'
                   }`}
                   value={state.jobName}
@@ -243,7 +319,7 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
                   Job Type <span className="text-redDanger text-xs">*</span>
                 </label>
                 <select
-                  className={`w-full border border-greyBorderInput rounded-md p-2 focus:outline-none focus:ring-2 ${
+                  className={`w-full border border-greyBorder rounded-md p-2 focus:outline-none focus:ring-2 ${
                     state.errors.jobType ? 'border-redDanger focus:ring-redDanger' : 'focus:ring-greenPrimary'
                   }`}
                   value={state.jobType}
@@ -269,7 +345,7 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
                 </label>
                 <textarea
                   placeholder="Ex: Describe the job..."
-                  className={`w-full border border-greyBorderInput  rounded-md p-2 h-24 focus:outline-none focus:ring-2 ${
+                  className={`w-full border border-greyBorder  rounded-md p-2 h-24 focus:outline-none focus:ring-2 ${
                     state.errors.jobDesc ? 'border-redDanger focus:ring-redDanger' : 'focus:ring-greenPrimary'
                   }`}
                   value={state.jobDesc}
@@ -288,7 +364,7 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
                 <input
                   type="number"
                   placeholder="Ex: 2"
-                  className={`w-full border border-greyBorderInput  rounded-md p-2 focus:outline-none focus:ring-2 ${
+                  className={`w-full border border-greyBorder  rounded-md p-2 focus:outline-none focus:ring-2 ${
                     state.errors.numberCandidate ? 'border-redDanger focus:ring-redDanger' : 'focus:ring-greenPrimary'
                   }`}
                   value={state.numberCandidate ?? ''}
@@ -310,7 +386,7 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
                   <input
                     type="number"
                     placeholder="Rp 7.000.000"
-                    className="w-full border border-greyBorderInput  rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-greenPrimary"
+                    className="w-full border border-greyBorder  rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-greenPrimary"
                     value={state.minSalary ?? ''}
                     onChange={handleSalary('setminSalary')}
                   />
@@ -320,8 +396,8 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
                   <input
                     type="number"
                     placeholder="Rp 10.000.000"
-                    className="w-full border border-greyBorderInput rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-greenPrimary"
-                       value={state.maxSalary ?? ''}
+                    className="w-full border border-greyBorder rounded-md p-2 focus:outline-none focus:ring-2 focus:ring-greenPrimary"
+                    value={state.maxSalary ?? ''}
                     onChange={handleSalary('setmaxSalary')}
                   />
                 </div>
@@ -331,37 +407,60 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
               <div className="border border-greyOutline rounded-lg p-4 mt-6">
                 <h3 className="flex font-bold mb-3 text-sm ">Minimum Profile Information Required</h3>
 
-                <div className="divide-y text-sm">
-                  {[
-                    'Full name',
-                    'Photo Profile',
-                    'Gender',
-                    'Domicile',
-                    'Email',
-                    'Phone number',
-                    'LinkedIn Link',
-                    'Date of Birth',
-                  ].map((label) => (
-                    <div
-                      key={label}
-                      className="flex justify-between items-center py-2"
-                    >
-                      <span>{label}</span>
-                      <div className="flex items-center gap-3">
-                        <button className="text-xs bg-[#01959f]/10 text-[#01959f] px-3 py-1 rounded-md">
-                          Mandatory
-                        </button>
-                        <button className="text-xs text-gray-500 hover:text-[#01959f]">Optional</button>
-                        <label className="flex items-center gap-1 text-xs text-gray-600">
-                          <span>Off</span>
-                          <input
-                            type="checkbox"
-                            className="accent-[#01959f]"
-                          />
-                        </label>
+                <div className="divide-y divide-greyOutline text-sm">
+                  {Object.entries(state.fields).map(([key, value]) => {
+                    const isLocked = ['full_name', 'photo_profile', 'email'].includes(key)
+
+                    return (
+                      <div
+                        key={key}
+                        className="flex justify-between items-center py-2"
+                      >
+                        <span className="text-greyNeutral text-sm capitalize">{key.replace('_', ' ')}</span>
+
+                        <div className="flex items-center gap-3">
+                          {/* Mandatory button */}
+                          <button
+                            onClick={() => !isLocked && handleMandatory(key as keyof RequirementProps, 'mandatory')}
+                            disabled={isLocked}
+                            className={`text-sm rounded-2xl px-[12px] py-[4px] transition-all duration-150 ${
+                              value.required && value.visible
+                                ? 'border border-greenPrimary text-greenPrimary'
+                                : 'text-greyNeutral border border-greyBorder hover:text-greenPrimary'
+                            } ${isLocked ? 'border border-greenPrimary text-greenPrimary' : ''}`}
+                          >
+                            Mandatory
+                          </button>
+
+                          {/* Optional button */}
+                          <button
+                            onClick={() => !isLocked && handleMandatory(key as keyof RequirementProps, 'optional')}
+                            disabled={isLocked}
+                            className={`text-sm rounded-2xl px-[12px] py-[4px] transition-all duration-150 ${
+                              !value.required && value.visible
+                                ? 'border border-greenPrimary text-greenPrimary'
+                                : 'text-greyNeutral border border-greyBorder hover:text-greenPrimary'
+                            } ${isLocked ? 'text-greyTextDisable bg-greyOutline border border-greyBorder cursor-not-allowed' : ''}`}
+                          >
+                            Optional
+                          </button>
+
+                          {/* Off button */}
+                          <button
+                            onClick={() => !isLocked && handleMandatory(key as keyof RequirementProps, 'off')}
+                            disabled={isLocked}
+                            className={`text-sm rounded-2xl px-[12px] py-[4px] transition-all duration-150 ${
+                              !value.visible
+                                ? 'border border-greenPrimary text-greenPrimary'
+                                : 'text-greyNeutral border border-greyBorder hover:text-greenPrimary'
+                            } ${isLocked ? 'text-greyTextDisable bg-greyOutline border border-greyBorder cursor-not-allowed' : ''}`}
+                          >
+                            Off
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
 
