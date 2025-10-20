@@ -26,10 +26,11 @@ const Page = () => {
 
   const handleClick = () => {
     setIsModalOpen(true)
+    console.log('open modal')
   }
 
   return (
-    <div className="flex m-(--paddingMainPage) gap-[24px] h-[calc(94vh-32px)] pr-[16px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-greenPrimary scrollbar-track-greyTrack overflow-y-scroll">
+    <div className="flex m-(--paddingMainPage)  p-[16px] gap-[24px] h-[calc(94vh-32px)] pr-[16px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-greenPrimary scrollbar-track-greyTrack overflow-y-scroll">
       {/* search bar & order list */}
       <div
         id="jobs"
@@ -53,10 +54,11 @@ const Page = () => {
           />
         </div>
 
-        {/* ListJob > 0 / list job ada lebih dari 0 tampilkan di list */}
-        {/* <ListJobs data={listJobs} /> */}
+        {/* list condition ListJob > 0 / list job ada lebih dari 0 tampilkan di list */}
+        <ListJobs data={listJobs} />
+
         {/* empty jobs list Condition */}
-        <div className="flex flex-col flex-grow justify-center items-center text-center gap-3">
+        {/* <div className="flex flex-col flex-grow justify-center items-center text-center gap-3">
           <div className="relative w-[320px] h-[320px]">
             <Image
               src="/asset/vektor/SearchJob.svg"
@@ -73,15 +75,16 @@ const Page = () => {
             color={'yellow'}
             label="Create a new job"
           />
-          <ModalJobOpeningForm
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-          />
-        </div>
+        </div> */}
       </div>
 
       {/* image with overlay */}
       <ImageButton onClick={handleClick} />
+
+      <ModalJobOpeningForm
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   )
 }
