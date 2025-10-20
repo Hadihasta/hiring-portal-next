@@ -1,7 +1,10 @@
 'use client'
-import React from 'react'
+import React  from 'react'
 import Button from '@/components/global/Button'
 import { getJobNumber } from '@/lib/getJobNumber'
+
+import { useRouter } from 'next/navigation'
+
 
 interface SalaryRange {
   min: number
@@ -36,6 +39,14 @@ const statusBadgeColor: Record<string, string> = {
 }
 
 const ListJobs: React.FC<ListJobsProps> = ({ data }) => {
+
+
+  const router = useRouter()
+
+   const handleViewCandidates = (id: string) => {
+    const jobNumber = getJobNumber(id)
+    router.push(`/managecandidate/${jobNumber}`)
+  }
   if (!data || data.length === 0) {
     return <div className="flex flex-col justify-center items-center py-12 text-gray-500">No job openings found.</div>
   }
@@ -65,11 +76,11 @@ const ListJobs: React.FC<ListJobsProps> = ({ data }) => {
             <p className="text-greyText  text-base ">{job.salary_range.display_text}</p>
           </div>
 
-          <Button
+         <Button
             color="green"
             label={job.list_card.cta}
             className="text-white text-xs rounded-lg"
-            onClick={() => console.log('Manage job clicked', getJobNumber(job.id))}
+            onClick={() => handleViewCandidates(job.id)}
           />
         </div>
       ))}
