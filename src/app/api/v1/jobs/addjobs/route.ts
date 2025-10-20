@@ -75,12 +75,16 @@ export async function POST(req: Request) {
     }
 
     // Return formatted response
-    return NextResponse.json({
-      message: 'Job and configurations created successfully',
-      data: {
-        job: serializeBigInt(newJob),
-      },
-    })
+    return NextResponse.json(
+      {
+    message: 'Job and configurations created successfully',
+    data: {
+      job: serializeBigInt(newJob),
+    },
+     status: 201 
+  },
+  
+    )
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (error: any) {
     console.error('POST /addjobs error:', error)

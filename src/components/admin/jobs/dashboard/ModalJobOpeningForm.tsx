@@ -3,6 +3,7 @@ import React from 'react'
 import { motion } from 'motion/react'
 import { AnimatePresence } from 'motion/react'
 import { useReducer, ChangeEvent } from 'react'
+import { createJob } from '@/services/jobsService'
 
 // isopen untuk menampilkan modal true akan muncul modalnya, false tidak muncul
 // onclose untuk menutup modal, biasanya diisi dengan fungsi yang mengubah isopen menjadi false
@@ -10,7 +11,6 @@ interface ModalJobOpeningFormProps {
   isOpen: boolean
   onClose: () => void
 }
-
 
 interface State {
   jobName: string
@@ -64,27 +64,24 @@ interface RequirementProps {
   }
 }
 
-
-
 export interface CreateJobPayload {
-  slug: string;
-  title: string;
-  description: string;
-  candidate_needed: number;
-  job_type: string;
-  salary_min?: number | null;
-  salary_max?: number | null;
-  created_by : number,
-  configurations: Configuration[];
+  slug: string
+  title: string
+  description: string
+  candidate_needed: number
+  job_type: string
+  salary_min?: number | null
+  salary_max?: number | null
+  created_by: number
+  configurations: Configuration[]
 }
 
 export interface Configuration {
-  field_key: string;
-  label: string;
-  required: boolean;
-  visible: boolean;
+  field_key: string
+  label: string
+  required: boolean
+  visible: boolean
 }
-
 
 // export interface JobResponse {
 //   id: number;
@@ -100,7 +97,6 @@ export interface Configuration {
 //   updated_at: string;
 //   configurations: Configuration[];
 // }
-
 
 type ActionForm =
   | { type: 'reset' }
@@ -197,48 +193,36 @@ function stateReducer(state: State, action: ActionForm): State {
 const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClose }) => {
   const [state, dispatch] = useReducer(stateReducer, initialState)
 
-const handleSubmit = async () => {
-  // Bentuk payload sesuai interface CreateJobPayload
-const payload: CreateJobPayload = {
-  slug: state.jobName.toLowerCase().replace(/\s+/g, '-'),
-  title: state.jobName,
-  description: state.jobDesc,
-  candidate_needed: state.numberCandidate ?? 0,
-  job_type: state.jobType,
-  salary_min: state.minSalary ?? 0,
-  salary_max: state.maxSalary ?? 0,
-  created_by: 1, // paksa 1 dulu untuk sekarang 
-  configurations: Object.entries(state.fields).map(([key, value]) => ({
-    field_key: key,
-    label: key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-    required: value.required,
-    visible: value.visible,
-  })),
-}
+  const handleSubmit = async () => {
+    try {
+      // Bentuk payload sesuai interface CreateJobPayload
+      const payload: CreateJobPayload = {
+        slug: `${state.jobName.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+        title: state.jobName,
+        description: state.jobDesc,
+        candidate_needed: state.numberCandidate ?? 0,
+        job_type: state.jobType,
+        salary_min: state.minSalary ?? 0,
+        salary_max: state.maxSalary ?? 0,
+        created_by: 1, // paksa 1 dulu untuk sekarang pakai admin account id
+        configurations: Object.entries(state.fields).map(([key, value]) => ({
+          field_key: key,
+          label: key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+          required: value.required,
+          visible: value.visible,
+        })),
+      }
+      const res = await createJob(payload)
+      // console.log(res.status) // 201
+      // Reset form ke initialState
+      dispatch({ type: 'reset' })
 
-  console.log('✅ Payload ready to send:', payload)
-
-  // try {
-  //   const response = await fetch('/api/v1/jobs/addjobs', {
-  //     method: 'POST',
-  //     headers: { 'Content-Type': 'application/json' },
-  //     body: JSON.stringify(payload),
-  //   })
-
-  //   if (!response.ok) {
-  //     throw new Error(`Request failed with status ${response.status}`)
-  //   }
-
-  //   const result = await response.json()
-  //   console.log('✅ Job created successfully:', result)
-
-  //   // Optional: reset state
-  //   dispatch({ type: 'reset' })
-  //   onClose()
-  // } catch (error) {
-  //   console.error('❌ Error creating job:', error)
-  // }
-}
+      // Tutup modal
+      onClose()
+    } catch (error) {
+      console.error('Gagal Create Job', error)
+    }
+  }
 
   const handleChangeJobName = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -519,7 +503,11 @@ const payload: CreateJobPayload = {
                               !value.required && value.visible
                                 ? 'border border-greenPrimary text-greenPrimary'
                                 : 'text-greyNeutral border border-greyBorder hover:text-greenPrimary'
-                            } ${isLocked ? 'text-greyTextDisable bg-greyOutline border border-greyBorder cursor-not-allowed' : ''}`}
+                            } ${
+                              isLocked
+                                ? 'text-greyTextDisable bg-greyOutline border border-greyBorder cursor-not-allowed'
+                                : ''
+                            }`}
                           >
                             Optional
                           </button>
@@ -532,7 +520,11 @@ const payload: CreateJobPayload = {
                               !value.visible
                                 ? 'border border-greenPrimary text-greenPrimary'
                                 : 'text-greyNeutral border border-greyBorder hover:text-greenPrimary'
-                            } ${isLocked ? 'text-greyTextDisable bg-greyOutline border border-greyBorder cursor-not-allowed' : ''}`}
+                            } ${
+                              isLocked
+                                ? 'text-greyTextDisable bg-greyOutline border border-greyBorder cursor-not-allowed'
+                                : ''
+                            }`}
                           >
                             Off
                           </button>
