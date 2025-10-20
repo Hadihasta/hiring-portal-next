@@ -34,7 +34,7 @@ export async function createJob(payload: CreateJob) {
 export async function getJob() {
   try {
     const res = await axios.get('/jobs/getalljobs')
-    return res.data
+    return res.data.data
   } catch (err) {
     console.error('Failed Create Job:', err)
     throw err
