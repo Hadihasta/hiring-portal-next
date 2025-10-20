@@ -1,9 +1,25 @@
-import React from 'react'
+import { Nunito } from "next/font/google";
+import "@/styles/globals.css";
 
-const layout = () => {
+const nunito = Nunito({
+  variable: "--font-nunito",
+  subsets: ["latin"],
+  weight: ["400", "600", "700"], 
+});
+
+
+
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
   return (
-    <div>layouusseert</div>
-  )
+    <>
+        <main  className={`${nunito.variable} antialiased`}>
+        {children}
+      </main >
+    </>
+  );
 }
-
-export default layout

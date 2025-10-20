@@ -2,6 +2,7 @@
 import { useReducer, ChangeEvent } from 'react'
 import { login } from '@/services/authService'
 import { useRouter } from 'next/navigation'
+import Button from '@/components/global/Button'
 
 interface State {
   email: string
@@ -58,7 +59,7 @@ export default function Home() {
         password: state.password,
       }
       const res = await login(payload)
-      console.log(res)
+      // console.log(res)
 
     
 
@@ -122,12 +123,8 @@ export default function Home() {
           <div className="text-greenPrimary text-xs cursor-pointer hover:font-bold">Lupa kata sandi?</div>
         </div>
 
-        <button
-          onClick={handleClick}
-          className="flex justify-center w-full  bg-yellowBg rounded-lg hover:bg-yellowHover p-(--paddingButton) cursor-pointer "
-        >
-          <span className="font-bold text-base">Masuk</span>
-        </button>
+     
+        <Button  onClick={handleClick}  color={'yellow'} label='Masuk' className={'w-full '}/>
 
         <div className="flex items-center w-full text-gray-400  text-xs">
           <div className="flex-1 h-px bg-[#E0E0E0]"></div>

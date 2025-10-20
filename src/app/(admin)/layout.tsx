@@ -1,27 +1,27 @@
-import { Nunito } from "next/font/google";
-import "@/styles/globals.css";
-import Navbar from "@/components/global/Navbar";
+import { Nunito } from 'next/font/google'
+import '@/styles/globals.css'
+import Navbar from '@/components/global/Navbar'
 
 const nunito = Nunito({
-  variable: "--font-nunito",
-  subsets: ["latin"],
-  weight: ["400", "600", "700"], 
-});
-
-
-
+  variable: '--font-nunito',
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+})
 
 export default function RootLayout({
   children,
 }: Readonly<{
-  children: React.ReactNode;
+  children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
-        <body className={`${nunito.variable} antialiased`}>
-        <Navbar />
+    <>
+      <main className={`${nunito.variable} antialiased`}>
+        <Navbar
+          label={'Job List'}
+          src="/asset/global/TemplateAdmin.jpg"
+        />
         {children}
-      </body>
-    </html>
-  );
+      </main>
+    </>
+  )
 }
