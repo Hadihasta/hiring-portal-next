@@ -11,6 +11,7 @@ interface ModalJobOpeningFormProps {
   onClose: () => void
 }
 
+
 interface State {
   jobName: string
   jobType: string
@@ -62,6 +63,44 @@ interface RequirementProps {
     visible: boolean
   }
 }
+
+
+
+export interface CreateJobPayload {
+  slug: string;
+  title: string;
+  description: string;
+  candidate_needed: number;
+  job_type: string;
+  salary_min?: number | null;
+  salary_max?: number | null;
+  created_by : number,
+  configurations: Configuration[];
+}
+
+export interface Configuration {
+  field_key: string;
+  label: string;
+  required: boolean;
+  visible: boolean;
+}
+
+
+// export interface JobResponse {
+//   id: number;
+//   slug: string;
+//   title: string;
+//   description: string;
+//   candidate_needed: number;
+//   job_type: string;
+//   salary_min?: number | null;
+//   salary_max?: number | null;
+//   created_by: number;
+//   created_at: string;
+//   updated_at: string;
+//   configurations: Configuration[];
+// }
+
 
 type ActionForm =
   | { type: 'reset' }
@@ -158,9 +197,48 @@ function stateReducer(state: State, action: ActionForm): State {
 const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClose }) => {
   const [state, dispatch] = useReducer(stateReducer, initialState)
 
-  const handleClick = () => {
-    console.log('Form submitted:', state)
-  }
+const handleSubmit = async () => {
+  // Bentuk payload sesuai interface CreateJobPayload
+const payload: CreateJobPayload = {
+  slug: state.jobName.toLowerCase().replace(/\s+/g, '-'),
+  title: state.jobName,
+  description: state.jobDesc,
+  candidate_needed: state.numberCandidate ?? 0,
+  job_type: state.jobType,
+  salary_min: state.minSalary ?? 0,
+  salary_max: state.maxSalary ?? 0,
+  created_by: 1, // paksa 1 dulu untuk sekarang 
+  configurations: Object.entries(state.fields).map(([key, value]) => ({
+    field_key: key,
+    label: key.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
+    required: value.required,
+    visible: value.visible,
+  })),
+}
+
+  console.log('✅ Payload ready to send:', payload)
+
+  // try {
+  //   const response = await fetch('/api/v1/jobs/addjobs', {
+  //     method: 'POST',
+  //     headers: { 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(payload),
+  //   })
+
+  //   if (!response.ok) {
+  //     throw new Error(`Request failed with status ${response.status}`)
+  //   }
+
+  //   const result = await response.json()
+  //   console.log('✅ Job created successfully:', result)
+
+  //   // Optional: reset state
+  //   dispatch({ type: 'reset' })
+  //   onClose()
+  // } catch (error) {
+  //   console.error('❌ Error creating job:', error)
+  // }
+}
 
   const handleChangeJobName = (e: ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
@@ -211,7 +289,8 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
 
     if (!jobNameError && !jobTypeError && !jobDescError && !numberCandidateError) {
       dispatch({ type: 'setFirstLoad', value: false })
-      handleClick()
+      // submit
+      handleSubmit()
     } else {
       dispatch({ type: 'setFirstLoad', value: true })
     }
