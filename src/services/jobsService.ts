@@ -28,3 +28,15 @@ export async function createJob(payload: CreateJob) {
     throw err
   }
 }
+
+
+
+export async function getJob() {
+  try {
+    const res = await axios.get('/jobs/getalljobs')
+    return res.data
+  } catch (err) {
+    console.error('Failed Create Job:', err)
+    throw err
+  }
+}

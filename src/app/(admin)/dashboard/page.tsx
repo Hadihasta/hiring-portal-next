@@ -1,16 +1,31 @@
 'use client'
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Image from 'next/image'
 import Button from '@/components/global/Button'
 import ImageButton from '@/components/admin/jobs/dashboard/ImageButton'
 import ModalJobOpeningForm from '@/components/admin/jobs/dashboard/ModalJobOpeningForm'
-
+import ListJobs from '@/components/admin/jobs/dashboard/ListJobs'
+import { getJob } from '@/services/jobsService'
 const Page = () => {
   const [isModalOpen, setIsModalOpen] = useState(false)
+
+  const fetchFirstData = async () => {
+    try {
+      const res = await getJob()
+      console.log(res)
+    } catch (error) {
+        console.log(error)
+    }
+  }
+
+  useEffect(() => {
+    fetchFirstData()
+  }, [])
+
   const handleClick = () => {
     setIsModalOpen(true)
-    console.log('Button clicked')
   }
+
   return (
     <div className="flex m-(--paddingMainPage) gap-[24px] h-[calc(94vh-32px)] pr-[16px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-greenPrimary scrollbar-track-greyTrack overflow-y-scroll">
       {/* search bar & order list */}
@@ -36,8 +51,10 @@ const Page = () => {
           />
         </div>
 
+        {/* ListJob > 0 / list job ada lebih dari 0 tampilkan di list */}
+        <ListJobs />
         {/* empty jobs list Condition */}
-        <div className="flex flex-col flex-grow justify-center items-center text-center gap-3">
+        {/* <div className="flex flex-col flex-grow justify-center items-center text-center gap-3">
           <div className="relative w-[320px] h-[320px]">
             <Image
               src="/asset/vektor/SearchJob.svg"
@@ -58,7 +75,7 @@ const Page = () => {
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
           />
-        </div>
+        </div> */}
       </div>
 
       {/* image with overlay */}
