@@ -30,18 +30,23 @@
   --color-redDanger: #e11428;
   --color-greyTextDisable: #9e9e9e;
   --color-white: #ffffff;
+  
+  
+  --color-greenSurface: #F7FEFF;
+  --color-greenBorder: #01777F;
 
-  --color-successText: #43936C;
-  --color-successBg: #F8FBF9;
-  --color-successBorder: #B8DBCA;
 
-  --color-dangerText: #E11428;
-  --color-dangerBg: #FFFAFA;
+  --color-successText: #43936c;
+  --color-successBg: #f8fbf9;
+  --color-successBorder: #b8dbca;
+
+  --color-dangerText: #e11428;
+  --color-dangerBg: #fffafa;
   --color-dangerBorder: #f5b1b7;
 
-  --color-warningText: #FBC037;
-  --color-warningBg: #FFFCF5;
-  --color-warningBorder: #FEEABC;
+  --color-warningText: #fbc037;
+  --color-warningBg: #fffcf5;
+  --color-warningBorder: #feeabc;
 
   /* font size */
   /* text-xs = 12px */
@@ -49,6 +54,16 @@
   /* text-base = 16px */
   /* text-lg = 18px */
   /* text-xl = 20px */
+
+  /* border radius */
+  /* rounded-xs 0.125rem (2px)
+  rounded-sm 0.25rem (4px)
+  rounded-md0.375rem (6px)
+  rounded-lg 0.5rem (8px)
+  rounded-xl 0.75rem (12px)
+  rounded-2xl 1rem (16px)
+  rounded-3xl 1.5rem (24px)
+  rounded-4xl 2rem (32px) */
 
   /* shadow box */
   --shadow-form: rgba(0, 0, 0, 0.1) 0px 4px 8px 0px;

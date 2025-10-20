@@ -4,7 +4,7 @@ import Image from 'next/image'
 
 // navbar props interface
 interface NavbarProps {
-  label: string
+  label?: string
   src?: string
 }
 
