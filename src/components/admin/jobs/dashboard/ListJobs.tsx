@@ -54,9 +54,9 @@ const ListJobs: React.FC<ListJobsProps> = ({ data }) => {
 
   return (
     <div className="flex flex-col gap-4">
-      {data.map((job) => (
+      {data.map((job,index) => (
         <div
-          key={job.id}
+          key={index}
           className="w-full bg-white p-[24px] rounded-2xl shadow-sm  flex justify-between items-end border border-gray-100"
         >
           <div className="flex flex-col gap-1">

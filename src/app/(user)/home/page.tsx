@@ -4,7 +4,6 @@ import React, { useEffect, useState } from 'react'
 import Image from 'next/image'
 import { getJob } from '@/services/jobsService'
 
-// ✅ Define the JobItem interface matching your backend response
 export interface JobItem {
   id: string
   slug: string
@@ -53,9 +52,16 @@ const Page = () => {
     )
   }
 
+
+   const handleApplyButton = (job: JobItem) => {
+    console.log('Selected Job:', job)
+    // you can redirect or open a modal later
+    // example: router.push(`/apply/${job.id}`)
+  }
+  //  Empty state — when no jobs are available
   if (listJobs.length === 0) {
     return (
-      <div className="flex flex-col justify-center items-center h-[94vh] text-center gap-3">
+      <div className="flex flex-col flex-grow justify-center items-center text-center gap-3 h-[94vh]">
         <div className="relative w-[320px] h-[320px]">
           <Image
             src="/asset/vektor/SearchJob.svg"
@@ -64,14 +70,16 @@ const Page = () => {
             className="object-contain"
           />
         </div>
+
         <p className="text-xl font-bold">No job openings available</p>
-        <p className="text-gray-500 text-base">
-          Please create a new job posting first
-        </p>
+        <div className="text-greyNeutral text-base">
+          Please wait for the next batch of openings
+        </div>
       </div>
     )
   }
 
+  //  Show job list & detail only if we have jobs
   return (
     <div className="px-[104px] py-[40px] h-[94vh]">
       <div className="flex gap-6 h-full">
@@ -80,9 +88,9 @@ const Page = () => {
           id="jobsDisplay"
           className="w-[384px] flex flex-col gap-4 overflow-y-auto pr-2"
         >
-          {listJobs.map((job) => (
+          {listJobs.map((job,index) => (
             <div
-              key={job.id}
+              key={index}
               onClick={() => setSelectedJob(job)}
               className={`p-4 rounded-lg shadow-sm border-2 cursor-pointer transition ${
                 selectedJob?.id === job.id
@@ -144,7 +152,7 @@ const Page = () => {
                 </div>
               </div>
 
-              <button className="bg-yellowBg hover:bg-yellowHover font-bold px-5 py-2 rounded-lg text-sm transition">
+              <button onClick={() => handleApplyButton(selectedJob)} className="bg-yellowBg hover:bg-yellowHover font-bold px-5 py-2 rounded-lg text-sm transition">
                 Apply
               </button>
             </div>
@@ -152,15 +160,7 @@ const Page = () => {
             {/* Job Description */}
             <div className="text-gray-700 text-sm leading-relaxed space-y-3">
               <p className="whitespace-pre-line">{selectedJob.description}</p>
-              <p>
-                <b>Salary Range:</b> {selectedJob.salary_range.display_text}
-              </p>
-              <p>
-                <b>Status:</b> {selectedJob.status}
-              </p>
-              <p className="text-gray-500 text-xs mt-2">
-                {selectedJob.list_card.started_on_text}
-              </p>
+             
             </div>
           </div>
         )}
