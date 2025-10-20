@@ -34,6 +34,7 @@ export interface JobItem {
   id: string
   slug: string
   title: string
+  description: string       // ✅ add this
   status: string
   salary_range: {
     min: number
@@ -47,7 +48,6 @@ export interface JobItem {
     cta: string
   }
 }
-
 export async function getJob(): Promise<JobItem[]> {
   try {
     const res = await axios.get('/jobs/getalljobs')
