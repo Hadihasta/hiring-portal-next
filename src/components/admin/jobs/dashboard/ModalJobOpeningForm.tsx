@@ -11,6 +11,7 @@ import Helper from '@/components/global/Helper'
 interface ModalJobOpeningFormProps {
   isOpen: boolean
   onClose: () => void
+  onSuccess: () => void 
 }
 
 interface State {
@@ -191,7 +192,7 @@ function stateReducer(state: State, action: ActionForm): State {
   }
 }
 
-const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClose }) => {
+const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClose ,onSuccess}) => {
   const [state, dispatch] = useReducer(stateReducer, initialState)
   const [showHelper, setShowHelper] = useState(false)
 const [helperProps, setHelperProps] = useState({ action: 'success', message: '' })
@@ -221,6 +222,7 @@ const [helperProps, setHelperProps] = useState({ action: 'success', message: '' 
       dispatch({ type: 'reset' })
   setHelperProps({ action: 'success', message: 'Success Create Job' })
     setShowHelper(true)
+    onSuccess()
       // Tutup modal
       onClose()
     } catch (error) {
