@@ -2,8 +2,9 @@
 import React from 'react'
 import { motion } from 'motion/react'
 import { AnimatePresence } from 'motion/react'
-import { useReducer, ChangeEvent } from 'react'
+import { useReducer, ChangeEvent , useState } from 'react'
 import { createJob } from '@/services/jobsService'
+import Helper from '@/components/global/Helper'
 
 // isopen untuk menampilkan modal true akan muncul modalnya, false tidak muncul
 // onclose untuk menutup modal, biasanya diisi dengan fungsi yang mengubah isopen menjadi false
@@ -192,6 +193,8 @@ function stateReducer(state: State, action: ActionForm): State {
 
 const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClose }) => {
   const [state, dispatch] = useReducer(stateReducer, initialState)
+  const [showHelper, setShowHelper] = useState(false)
+const [helperProps, setHelperProps] = useState({ action: 'success', message: '' })
 
   const handleSubmit = async () => {
     try {
@@ -216,11 +219,14 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
       // console.log(res.status) // 201
       // Reset form ke initialState
       dispatch({ type: 'reset' })
-
+  setHelperProps({ action: 'success', message: 'Success Create Job' })
+    setShowHelper(true)
       // Tutup modal
       onClose()
     } catch (error) {
       console.error('Gagal Create Job', error)
+      setHelperProps({ action: 'error', message: 'Failed to Create Job' })
+    setShowHelper(true)
     }
   }
 
@@ -536,7 +542,6 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
               </div>
 
               {/* Footer */}
-
               <div className="flex justify-end pt-4">
                 <button
                   type="submit"
@@ -556,6 +561,14 @@ const ModalJobOpeningForm: React.FC<ModalJobOpeningFormProps> = ({ isOpen, onClo
           </motion.div>
         </motion.div>
       )}
+
+       {showHelper && (
+      <Helper
+        action={helperProps.action as 'success' | 'error'}
+        message={helperProps.message}
+        onClose={() => setShowHelper(false)}
+      />
+    )}
     </AnimatePresence>
   )
 }
