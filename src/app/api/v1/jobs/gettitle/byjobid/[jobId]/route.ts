@@ -4,10 +4,11 @@ import { serializeBigInt } from '@/lib/serializeBigInt'
 
 // GET /api/v1/jobs/gettitle/byjobid/[jobId]
 export async function GET(
-  req: Request,
-  { params }: { params: { jobId: string } }
+  req: NextRequest,
+  context: { params: { jobId: string } } | { params: Promise<{ jobId: string }> }
 ) {
   try {
+   const params = await Promise.resolve(context.params)
     const jobId = BigInt(params.jobId)
 
     const job = await prisma.jobs.findUnique({
