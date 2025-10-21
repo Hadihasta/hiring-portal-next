@@ -10,8 +10,8 @@ function safeJson<T>(data: T): T {
 }
 
 export async function GET(
-  request: NextRequest,
-  { params }: { params: { jobId: string } }
+  _request: NextRequest,
+  { params }: { params: { jobId: string } }   // ✅ only this — no union, no Promise
 ) {
   try {
     const { jobId } = params
@@ -20,14 +20,10 @@ export async function GET(
       return NextResponse.json({ message: 'Missing jobId' }, { status: 400 })
     }
 
-    const jobIdBigInt = BigInt(jobId)
-
     const job = await prisma.jobs.findUnique({
-      where: { id: jobIdBigInt },
+      where: { id: BigInt(jobId) },
       include: {
-        creator: {
-          select: { id: true, name: true, email: true },
-        },
+        creator: { select: { id: true, name: true, email: true } },
         job_configurations: {
           select: {
             id: true,
@@ -47,19 +43,13 @@ export async function GET(
     }
 
     return NextResponse.json(
-      {
-        message: 'Job fetched successfully',
-        data: safeJson(job),
-      },
+      { message: 'Job fetched successfully', data: safeJson(job) },
       { status: 200 }
     )
   } catch (error) {
     console.error('GET /jobs/byid/[jobId] error:', error)
     return NextResponse.json(
-      {
-        message: 'Internal server error',
-        detail: error instanceof Error ? error.message : String(error),
-      },
+      { message: 'Internal server error', detail: (error as Error).message },
       { status: 500 }
     )
   }
