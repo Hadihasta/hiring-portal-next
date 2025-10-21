@@ -10,7 +10,6 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Calendar } from '@/components/ui/calendar'
 import { createCandidate } from '@/services/candidateService'
 
-
 async function fetchJobById(id: string) {
   const res = await axios.get(`/jobs/byid/${id}`)
   return res.data.data
@@ -37,7 +36,7 @@ interface FieldState {
 }
 
 interface State {
-    jobId: string | null
+  jobId: string | null
   fields: Record<string, FieldState>
   configs: JobConfiguration[]
   submitting: boolean
@@ -52,7 +51,7 @@ type Action =
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
-      case 'setJobId':
+    case 'setJobId':
       return { ...state, jobId: action.jobId }
 
     case 'setConfigs':
@@ -80,11 +79,9 @@ function reducer(state: State, action: Action): State {
   }
 }
 
-
-
 const ApplyJobPage = () => {
   const { jobId } = useParams<{ jobId: string }>()
-    const [state, dispatch] = useReducer(reducer, {
+  const [state, dispatch] = useReducer(reducer, {
     jobId: jobId,
     fields: {},
     configs: [],
@@ -113,7 +110,7 @@ const ApplyJobPage = () => {
         key: 'photo_profile',
         value: imagePath,
       })
-      console.log('Foto berhasil diupload:', imagePath)
+      // console.log('Foto berhasil diupload:', imagePath)
     } catch (err) {
       console.error('Upload gagal:', err)
       alert('Upload foto gagal.')
@@ -127,48 +124,45 @@ const ApplyJobPage = () => {
 
   const handleButtonBack = () => router.push(`/home`)
 
-const validateAndSubmit = async () => {
-  let hasError = false
+  const validateAndSubmit = async () => {
+    let hasError = false
 
-  // 🔍 Validasi semua field yang required & visible
-  state.configs.forEach((cfg) => {
-    if (cfg.required && cfg.visible) {
-      const field = state.fields[cfg.field_key]
-      if (!field?.value || String(field.value).trim() === "") {
-        dispatch({ type: "setError", key: cfg.field_key, error: true })
-        hasError = true
-      } else {
-        dispatch({ type: "setError", key: cfg.field_key, error: false })
+    // 🔍 Validasi semua field yang required & visible
+    state.configs.forEach((cfg) => {
+      if (cfg.required && cfg.visible) {
+        const field = state.fields[cfg.field_key]
+        if (!field?.value || String(field.value).trim() === '') {
+          dispatch({ type: 'setError', key: cfg.field_key, error: true })
+          hasError = true
+        } else {
+          dispatch({ type: 'setError', key: cfg.field_key, error: false })
+        }
       }
+    })
+
+    if (hasError) return //  hentikan jika masih ada error
+
+    try {
+      dispatch({ type: 'setSubmitting', value: true })
+
+      //  Buat payload untuk dikirim ke backend
+      const payload = {
+        jobId: Number(state.jobId ?? 0),
+        fields: state.fields,
+        configs: state.configs,
+      }
+
+      //  Kirim ke service
+      const response = await createCandidate(payload)
+      router.push(`/apply-job-form/succesfully-apply`)
+
+      // console.log(" Submitted data:", response)
+    } catch (err) {
+      console.error(' Gagal submit kandidat:', err)
+    } finally {
+      dispatch({ type: 'setSubmitting', value: false })
     }
-  })
-
-  if (hasError) return //  hentikan jika masih ada error
-
-  try {
-    dispatch({ type: "setSubmitting", value: true })
-
-    // 📦 Buat payload untuk dikirim ke backend
-    const payload = {
-      jobId:  Number(state.jobId ?? 0),
-      fields: state.fields,
-      configs: state.configs,
-    }
-
-    // 🚀 Kirim ke service
-    const response = await createCandidate(payload)
-
-    console.log("✅ Submitted data:", response)
-
-
-
-  } catch (err) {
-    console.error(" Gagal submit kandidat:", err)
-   
-  } finally {
-    dispatch({ type: "setSubmitting", value: false })
   }
-}
 
   return (
     <div className="min-h-screen bg-pureWhite flex justify-center py-10 px-4">
@@ -179,7 +173,13 @@ const validateAndSubmit = async () => {
             onClick={handleButtonBack}
             className="cursor-pointer border-greyBorder border-2 rounded-lg hover:shadow-md p-2"
           >
-            <Image src="/asset/icon/icon-back.svg" alt="back" width={20} height={20} className="object-cover" />
+            <Image
+              src="/asset/icon/icon-back.svg"
+              alt="back"
+              width={20}
+              height={20}
+              className="object-cover"
+            />
           </button>
           <h1 className="text-lg font-bold text-blackText grow">Apply Front End at Rakamin</h1>
           <p className="text-sm text-greyNeutral mt-1">This field required to fill</p>
@@ -192,7 +192,12 @@ const validateAndSubmit = async () => {
             <div className="text-xs font-bold">Photo Profile</div>
             <div className="relative w-28 h-28 my-4">
               {photo ? (
-                <Image src={photo} alt="Captured Photo" fill className="object-cover rounded-md" />
+                <Image
+                  src={photo}
+                  alt="Captured Photo"
+                  fill
+                  className="object-cover rounded-md"
+                />
               ) : (
                 <Image
                   src="/asset/global/avatar-placeholder.svg"
@@ -271,7 +276,10 @@ const validateAndSubmit = async () => {
                               : 'Select date'}
                           </button>
                         </PopoverTrigger>
-                        <PopoverContent className="w-auto p-0" align="start">
+                        <PopoverContent
+                          className="w-auto p-0"
+                          align="start"
+                        >
                           <Calendar
                             mode="single"
                             selected={field.value ? new Date(field.value) : undefined}
@@ -282,7 +290,6 @@ const validateAndSubmit = async () => {
                                 value: date ? date.toISOString() : '',
                               })
                             }}
-                            
                           />
                         </PopoverContent>
                       </Popover>
@@ -330,7 +337,11 @@ const validateAndSubmit = async () => {
               }
             })}
 
-          <ModalPoseDetector isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCapture={handleCapture} />
+          <ModalPoseDetector
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onCapture={handleCapture}
+          />
 
           <button
             type="button"
