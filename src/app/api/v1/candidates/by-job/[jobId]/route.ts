@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 /**
@@ -16,13 +16,11 @@ function serializeBigInt<T>(obj: T): T {
  * GET /api/v1/candidates/by-job/[jobId]
  * Mengambil semua kandidat berdasarkan jobId
  */
-export async function GET(
-  req: Request,
-  ctx: { params: Promise<{ jobId: string }> }
-) {
+
+export async function GET(request: NextRequest, context: { params: { jobId: string } }) {
   try {
-    // ✅ Tunggu params agar kompatibel dengan Next.js 15
-    const { jobId } = await ctx.params
+    
+     const { jobId } = context.params
 
     if (!jobId) {
       return NextResponse.json({ message: 'Missing jobId' }, { status: 400 })

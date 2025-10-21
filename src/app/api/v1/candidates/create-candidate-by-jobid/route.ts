@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from "@/lib/prisma";
 
 function serializeBigInt<T>(obj: T): T {
@@ -20,9 +20,9 @@ interface ConfigItem {
   order_index?: number;
 }
 
-export async function POST(req: Request) {
+export async function POST(request: NextRequest, context: { params: { jobId: string } }) {
   try {
-    const body = await req.json();
+    const body = await request.json();
     const { jobId, fields, configs } = body as {
       jobId: string | number;
       fields: Record<string, FieldValue>;
