@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 
 function safeJson<T>(data: T): T {
@@ -9,12 +9,9 @@ function safeJson<T>(data: T): T {
   )
 }
 
-export async function GET(
-  request: Request,
-  context: { params: Promise<{ jobId: string }> }
-) {
+export async function GET(request: NextRequest, context: { params: { jobId: string } }) {
   try {
-    const { jobId } = await context.params
+   const { jobId } = context.params
     const jobIdBigInt = BigInt(jobId)
 
     const job = await prisma.jobs.findUnique({
