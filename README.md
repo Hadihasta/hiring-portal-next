@@ -36,7 +36,7 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
 =======================================================================================================================================
-
+LOCAL SETUP 
 # Docker for server
  <!--run from root dir (pastikan docker-compose.yml ada)  -->
 run : 
@@ -69,6 +69,16 @@ role : user
 email : user@gmail.com
 password : user
 
+admin route : /home
+
 role : admin 
 email : admin@gmail.com
 password : admin
+
+admin route : /dashboard
+
+Tech Stack : 
+Next.js (frontend + backend API) typescript
+Prisma ORM
+Supabase (PostgreSQL)
+Deployment di Vercel
