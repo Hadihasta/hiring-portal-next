@@ -4,12 +4,12 @@ import React, { useEffect, useReducer, useState, ChangeEvent } from 'react'
 import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import axios from '@/lib/axios'
+import PoseDetector from '@/components/camera/PoseDetector'
 
 async function fetchJobById(id: string) {
   const res = await axios.get(`/jobs/byid/${id}`)
   return res.data.data
 }
-
 
 interface JobConfiguration {
   id: string
@@ -133,22 +133,18 @@ const ApplyJobPage = () => {
               className="object-cover"
             />
           </button>
-          <h1 className="text-lg font-bold text-blackText grow">
-            Apply Front End at Rakamin
-          </h1>
-          <p className="text-sm text-greyNeutral mt-1">
-            This field required to fill
-          </p>
+          <h1 className="text-lg font-bold text-blackText grow">Apply Front End at Rakamin</h1>
+          <p className="text-sm text-greyNeutral mt-1">This field required to fill</p>
         </div>
 
         <form className="space-y-5">
           {/* PHOTO UPLOAD SECTION */}
-           <span className="text-redDanger text-sm font-bold">*Required</span>
+          <span className="text-redDanger text-sm font-bold">*Required</span>
           <div className="flex flex-col items-start my-8">
             <div className="text-xs font-bold">Photo Profile</div>
             <div className="relative w-28 h-28 my-4">
               <Image
-                src={photo || "/asset/global/avatar-placeholder.svg"}
+                src={photo || '/asset/global/avatar-placeholder.svg'}
                 alt="Default Avatar"
                 fill
                 className="object-cover rounded-full border"
@@ -222,6 +218,10 @@ const ApplyJobPage = () => {
                   )
               }
             })}
+
+          {/* <div className="flex justify-center items-center h-screen bg-gray-100">
+            <PoseDetector />
+          </div> */}
 
           <button
             type="button"
