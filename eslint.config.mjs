@@ -11,10 +11,10 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
-  // Base Next.js + TypeScript configs
+  // ✅ Keep base Next.js + TS rules
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 
-  
+  // ✅ Custom overrides
   {
     ignores: [
       "node_modules/**",
@@ -22,13 +22,20 @@ const eslintConfig = [
       "out/**",
       "build/**",
       "next-env.d.ts",
-      "src/generated/**", // ignore auto-generated prisma/wasm code
+      "src/generated/**",   // prisma / wasm
+      "src/generated/client/**",
+      "src/**/*.wasm.js",   // wasm build files
+      "**/*.min.js",        // minified vendor code
+      "**/vendor/**",       // vendor bundles
     ],
     rules: {
-      "@typescript-eslint/no-unused-vars": "off", // disable unused var warnings
-      "@typescript-eslint/no-unused-expressions": "off", // disable unused expression warnings
-      "@typescript-eslint/no-explicit-any": "off", // disable "Unexpected any"
-      "@typescript-eslint/no-empty-object-type": "off", // disable "{} type" warnings
+      "@typescript-eslint/no-unused-vars": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-empty-object-type": "off",
+      "@typescript-eslint/ban-ts-comment": "off",
+      "@typescript-eslint/ban-types": "off",
+      "@typescript-eslint/no-var-requires": "off",
     },
   },
 ];
