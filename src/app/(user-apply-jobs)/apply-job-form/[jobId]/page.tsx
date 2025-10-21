@@ -6,10 +6,9 @@ import { useParams, useRouter } from 'next/navigation'
 import axios from '@/lib/axios'
 import ModalPoseDetector from '@/components/camera/ModalPoseDetector'
 
-// 🧩 Shadcn UI imports
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-
+import { createCandidate } from '@/services/candidateService'
 
 
 async function fetchJobById(id: string) {
@@ -38,12 +37,14 @@ interface FieldState {
 }
 
 interface State {
+    jobId: string | null
   fields: Record<string, FieldState>
   configs: JobConfiguration[]
   submitting: boolean
 }
 
 type Action =
+  | { type: 'setJobId'; jobId: string }
   | { type: 'setConfigs'; configs: JobConfiguration[] }
   | { type: 'setField'; key: string; value: string }
   | { type: 'setError'; key: string; error: boolean }
@@ -51,6 +52,9 @@ type Action =
 
 function reducer(state: State, action: Action): State {
   switch (action.type) {
+      case 'setJobId':
+      return { ...state, jobId: action.jobId }
+
     case 'setConfigs':
       const initialFields: Record<string, FieldState> = {}
       action.configs.forEach((c) => {
@@ -80,7 +84,12 @@ function reducer(state: State, action: Action): State {
 
 const ApplyJobPage = () => {
   const { jobId } = useParams<{ jobId: string }>()
-  const [state, dispatch] = useReducer(reducer, { fields: {}, configs: [], submitting: false })
+    const [state, dispatch] = useReducer(reducer, {
+    jobId: jobId,
+    fields: {},
+    configs: [],
+    submitting: false,
+  })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [photo, setPhoto] = useState<string | null>(null)
 
@@ -118,27 +127,48 @@ const ApplyJobPage = () => {
 
   const handleButtonBack = () => router.push(`/home`)
 
-  const validateAndSubmit = () => {
-    console.log(state)
-    let hasError = false
-    state.configs.forEach((cfg) => {
-      if (cfg.required && cfg.visible) {
-        const field = state.fields[cfg.field_key]
-        if (!field?.value.trim()) {
-          dispatch({ type: 'setError', key: cfg.field_key, error: true })
-          hasError = true
-        }
-      }
-    })
+const validateAndSubmit = async () => {
+  let hasError = false
 
-    if (!hasError) {
-      dispatch({ type: 'setSubmitting', value: true })
-      setTimeout(() => {
-        alert('Form submitted successfully ✅')
-        dispatch({ type: 'setSubmitting', value: false })
-      }, 1000)
+  // 🔍 Validasi semua field yang required & visible
+  state.configs.forEach((cfg) => {
+    if (cfg.required && cfg.visible) {
+      const field = state.fields[cfg.field_key]
+      if (!field?.value || String(field.value).trim() === "") {
+        dispatch({ type: "setError", key: cfg.field_key, error: true })
+        hasError = true
+      } else {
+        dispatch({ type: "setError", key: cfg.field_key, error: false })
+      }
     }
+  })
+
+  if (hasError) return //  hentikan jika masih ada error
+
+  try {
+    dispatch({ type: "setSubmitting", value: true })
+
+    // 📦 Buat payload untuk dikirim ke backend
+    const payload = {
+      jobId:  Number(state.jobId ?? 0),
+      fields: state.fields,
+      configs: state.configs,
+    }
+
+    // 🚀 Kirim ke service
+    const response = await createCandidate(payload)
+
+    console.log("✅ Submitted data:", response)
+
+
+
+  } catch (err) {
+    console.error(" Gagal submit kandidat:", err)
+   
+  } finally {
+    dispatch({ type: "setSubmitting", value: false })
   }
+}
 
   return (
     <div className="min-h-screen bg-pureWhite flex justify-center py-10 px-4">
@@ -252,7 +282,7 @@ const ApplyJobPage = () => {
                                 value: date ? date.toISOString() : '',
                               })
                             }}
-                            initialFocus
+                            
                           />
                         </PopoverContent>
                       </Popover>
