@@ -45,7 +45,7 @@ const ListJobs: React.FC<ListJobsProps> = ({ data }) => {
 
    const handleViewCandidates = (id: string) => {
     const jobNumber = getJobNumber(id)
-    router.push(`/managecandidate/${jobNumber}`)
+    router.push(`/table-candidate/${jobNumber}`)
   }
   if (!data || data.length === 0) {
     return 
