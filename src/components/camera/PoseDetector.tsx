@@ -4,20 +4,25 @@ import React, { useEffect, useRef, useState } from 'react'
 import type { Results } from '@mediapipe/hands'
 import type { Hands } from '@mediapipe/hands'
 
-const PoseSequenceCapture: React.FC = () => {
+interface PoseDetectorProps {
+  onCaptured: (dataUrl: string) => void
+  stepProgress: (poseStep: number) => void
+}
+
+const PoseDetector: React.FC<PoseDetectorProps> = ({ onCaptured, stepProgress }) => {
   const videoRef = useRef<HTMLVideoElement | null>(null)
   const canvasRef = useRef<HTMLCanvasElement | null>(null)
   const [poseStep, setPoseStep] = useState<number>(1)
-  const [message, setMessage] = useState<string>('Show pose 1 to start')
-
-
+  const [countdown, setCountdown] = useState<number | null>(null)
+  //   const [message, setMessage] = useState<string>('Lakukan pose 1')
 
   useEffect(() => {
     let hands: Hands | null = null
     let animationFrameId: number
 
     const setupHandPose = async () => {
-      console.log('🧠 Initializing MediaPipe Hands...')
+      //   console.log('init MediaPipe Hands...')
+      //   await detect tunggu vidio render baru import
       const { Hands } = await import('@mediapipe/hands')
 
       const video = videoRef.current
@@ -25,13 +30,11 @@ const PoseSequenceCapture: React.FC = () => {
       if (!video || !canvas) return
       const ctx = canvas.getContext('2d')
       if (!ctx) return
-
       // Pastikan video dari kamera aktif
       const stream = await navigator.mediaDevices.getUserMedia({ video: true })
       video.srcObject = stream
-      //   mulai uploud video
       await video.play()
-
+      //   mulai uploud video
       hands = new Hands({
         locateFile: (file: string) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4/${file}`,
       })
@@ -44,7 +47,6 @@ const PoseSequenceCapture: React.FC = () => {
       })
 
       hands.onResults((results: Results) => {
-        // console.log('📸 Results received:', results)
         ctx.save()
         ctx.clearRect(0, 0, canvas.width, canvas.height)
         ctx.drawImage(results.image as CanvasImageSource, 0, 0, canvas.width, canvas.height)
@@ -53,16 +55,16 @@ const PoseSequenceCapture: React.FC = () => {
           const landmarks = results.multiHandLandmarks[0]
           const fingerCount = getFingerCount(landmarks)
 
-          ctx.font = '24px Poppins'
-          ctx.fillStyle = 'lime'
-          ctx.fillText(`Pose: ${fingerCount}`, 20, 40)
+          //   tulisan pada layar vidio di comment saja
+          //   ctx.font = '24px Poppins'
+          //   ctx.fillStyle = 'lime'
+          //   ctx.fillText(`Pose: ${fingerCount}`, 20, 40)
 
           handlePoseDetection(fingerCount, results.image)
         }
         ctx.restore()
       })
-
-      //  Loop manual kirim frame ke MediaPipe
+      //  loop manual kirim frame ke MediaPipe
       const processVideo = async () => {
         if (!hands || !videoRef.current) return
         await hands.send({ image: videoRef.current })
@@ -80,70 +82,70 @@ const PoseSequenceCapture: React.FC = () => {
       stream?.getTracks().forEach((t) => t.stop())
     }
   }, [])
-  const expectedSequence = [2, 1, 3]
+
+  const expectedSequence = [3, 2, 1]
   //  Logika deteksi urutan pose
   const handlePoseDetection = (fingerCount: number, image: CanvasImageSource) => {
     //   const [poseStep, setPoseStep] = useState<number>(0) // untuk step
     //   const [message, setMessage] = useState<string>('Show pose 1 to start') // untuk message
     //   postStep di awal = 0
     // finger sesuai jari
-    //  expectedSequence 2 jari 1 jari 3 jari [2,1,3]
+    //  expectedSequence 3 jari 2 jari 1 jari [3,2,1]
 
     // poseStep mulai dari 1 dan ketika 3   capturePhoto(image)
     // console.log(poseStep , " <<<<< here")
     // poseStep mulai dari 1
-
     setPoseStep((prev) => {
       //    karena dipangil terus menerus
       //    gunakan prev karena state tidak sempat update
       if (prev === 1 && fingerCount === expectedSequence[0]) {
-        setMessage('Lakukan pose 2 (angkat 1 jari)')
+        stepProgress(prev)
+        // setMessage('Lakukan pose 2 ')
         return 2
       }
 
       if (prev === 2 && fingerCount === expectedSequence[1]) {
-        setMessage('Lakukan pose 3 (angkat 3 jari)')
+        stepProgress(prev)
+        // setMessage('Lakukan pose 3 ')
         return 3
       }
 
       if (prev === 3 && fingerCount === expectedSequence[2]) {
-        console.log('📸 Pose 3 benar → ambil foto')
-        capturePhoto(image)
-        setMessage(' Foto berhasil diambil!')
+        stepProgress(prev)
+        startCountdown(image)
+        // setMessage(' Foto berhasil diambil!')
         return 1 // reset ke awal
       }
-
       // kalau tidak cocok, tetap di posisi sebelumnya
+      stepProgress(prev)
       return prev
     })
-
-    // if (fingerCount === expectedSequence[poseStep]) {
-    //   setMessage(`Pose ${fingerCount} detected`)
-    //     console.log(poseStep," step")
-    //     console.log(expectedSequence.length," length")
-    //   if (poseStep + 1 === expectedSequence.length) {
-    //     capturePhoto(image)
-    //     setMessage('✅ Captured Successfully!')
-    //     setPoseStep(0)
-    //   } else {
-    //     setPoseStep((prev) => prev + 1)
-    //   }
-    // } else if (fingerCount !== 0) {
-    //   setMessage('❌ Unmatched Pose - try again')
-    //   setPoseStep(0)
-    // }
   }
 
-  //  Capture hasil deteksi
+  //   countdown
+  const startCountdown = (image: CanvasImageSource) => {
+    setCountdown(3)
+    let count = 3
+    const timer = setInterval(() => {
+      count--
+      if (count > 0) {
+        setCountdown(count)
+      } else {
+        clearInterval(timer)
+        setCountdown(null)
+        capturePhoto(image)
+      }
+    }, 1000)
+  }
+
   const capturePhoto = (image: CanvasImageSource) => {
-    console.log(image)
     const canvas = document.createElement('canvas')
     const context = canvas.getContext('2d')!
     canvas.width = 640
     canvas.height = 480
     context.drawImage(image, 0, 0, 640, 480)
     const dataUrl = canvas.toDataURL('image/png')
-    console.log('📸 Captured Image:', dataUrl)
+    onCaptured(dataUrl)
   }
 
   //  Hitung jari terangkat
@@ -163,7 +165,7 @@ const PoseSequenceCapture: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 relative">
       <div className="relative">
         <video
           ref={videoRef}
@@ -174,12 +176,20 @@ const PoseSequenceCapture: React.FC = () => {
           ref={canvasRef}
           width={640}
           height={480}
-          className="rounded-xl shadow-md"
+          className="shadow-md rounded-lg"
         />
-        <div className="absolute bottom-2 left-2 bg-black/70 text-white text-sm px-4 py-2 rounded-lg">{message}</div>
+
+        {/* note sudut kiri bawah */}
+        {/* <div className="absolute bottom-2 left-2 bg-black/70 text-white text-sm px-4 py-2 rounded-lg">{message}</div> */}
+        {/* Overlay countdown */}
+        {countdown !== null && (
+          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-7xl font-bold transition-all duration-300">
+            {countdown}
+          </div>
+        )}
       </div>
     </div>
   )
 }
 
-export default PoseSequenceCapture
+export default PoseDetector

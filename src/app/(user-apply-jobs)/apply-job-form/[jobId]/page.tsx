@@ -5,6 +5,7 @@ import Image from 'next/image'
 import { useParams } from 'next/navigation'
 import axios from '@/lib/axios'
 import PoseDetector from '@/components/camera/PoseDetector'
+import ModalPoseDetector from '@/components/camera/ModalPoseDetector'
 
 async function fetchJobById(id: string) {
   const res = await axios.get(`/jobs/byid/${id}`)
@@ -73,6 +74,7 @@ function reducer(state: State, action: Action): State {
 const ApplyJobPage = () => {
   const { jobId } = useParams<{ jobId: string }>()
   const [state, dispatch] = useReducer(reducer, { fields: {}, configs: [], submitting: false })
+  const [isModalOpen, setIsModalOpen] = useState(false)
   const [photo, setPhoto] = useState<string | null>(null)
 
   useEffect(() => {
@@ -81,6 +83,11 @@ const ApplyJobPage = () => {
       dispatch({ type: 'setConfigs', configs: job.job_configurations })
     })
   }, [jobId])
+
+  const handleCapture = (dataUrl: string) => {
+    console.log( " photo <<< masuk ke state page nih")
+    setPhoto(dataUrl)
+  }
 
   const handleChange = (key: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     dispatch({ type: 'setField', key, value: e.target.value })
@@ -142,29 +149,37 @@ const ApplyJobPage = () => {
           <span className="text-redDanger text-sm font-bold">*Required</span>
           <div className="flex flex-col items-start my-8">
             <div className="text-xs font-bold">Photo Profile</div>
+            {/* Preview foto */}
             <div className="relative w-28 h-28 my-4">
-              <Image
-                src={photo || '/asset/global/avatar-placeholder.svg'}
-                alt="Default Avatar"
-                fill
-                className="object-cover rounded-full border"
-              />
+              {photo ? (
+                <Image
+                  src={photo}
+                  alt="Captured Photo"
+                  fill
+                  className="object-cover rounded-md"
+                />
+              ) : (
+                <Image
+                  src="/asset/global/avatar-placeholder.svg"
+                  alt="Default Avatar"
+                  fill
+                  className="object-cover"
+                />
+              )}
             </div>
-            <label className="flex items-center cursor-pointer border-greyBorder border-2 text-blackText px-4 py-2 rounded-lg hover:bg-gray-200 text-sm gap-2">
+            <label
+              className="flex items-center cursor-pointer border-greyBorder border-2 text-blackText 
+                       px-4 py-2 rounded-lg hover:bg-gray-200 text-sm gap-2"
+              onClick={() => setIsModalOpen(true)}
+            >
               <Image
                 src="/asset/icon/download-icon.svg"
-                alt="upload"
+                alt="Camera Icon"
                 width={20}
                 height={20}
                 className="object-cover"
               />
               <div className="text-sm font-bold">Take a Picture</div>
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleFileChange}
-                className="hidden"
-              />
             </label>
           </div>
 
@@ -222,6 +237,12 @@ const ApplyJobPage = () => {
           {/* <div className="flex justify-center items-center h-screen bg-gray-100">
             <PoseDetector />
           </div> */}
+
+          <ModalPoseDetector
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onCapture={handleCapture}
+          />
 
           <button
             type="button"
