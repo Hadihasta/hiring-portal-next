@@ -57,3 +57,23 @@ export async function getJob(): Promise<JobItem[]> {
     throw err
   }
 }
+
+
+
+export interface GetJobProps { 
+  id: string 
+  title: string
+  status: string
+  created_at: string
+  candidate_needed: string
+}
+
+export async function getJobTitle(payload: string): Promise<GetJobProps> {
+  try {
+    const res = await axios.get(`/jobs/gettitle/byjobid/${payload}`)
+    return res.data.data
+  } catch (err) {
+    console.error('Failed Create Job:', err)
+    throw err
+  }
+}
