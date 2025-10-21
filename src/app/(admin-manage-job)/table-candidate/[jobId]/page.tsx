@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useState } from 'react'
 import { useParams } from 'next/navigation'
+import { getJobTitle,GetJobProps } from '@/services/jobsService'
 import axios from 'axios'
 import {
   useReactTable,
@@ -12,6 +13,7 @@ import {
   ColumnResizeMode,
 } from '@tanstack/react-table'
 import Image from 'next/image'
+
 
 const NoCandidate = () => (
   <div className="flex flex-col flex-grow justify-center items-center text-center gap-3 h-[80vh]">
@@ -50,19 +52,26 @@ interface Candidate {
 }
 
 export default function ManageCandidatePage() {
-  const { jobId } = useParams()
+  // kalau pakai use param ada kemungkinan obId = "32" → kalau route kamu seperti /jobs/32
+// jobId = ["32", "extra"] → kalau route kamu pakai catch-all parameter, misalnya [...jobId]
+// string | string[] mangkanya ambil jobid index ke 0
+ const params = useParams()
+const jobId = Array.isArray(params.jobId) ? params.jobId[0] : params.jobId
   const [candidates, setCandidates] = useState<Candidate[]>([])
   const [loading, setLoading] = useState(true)
   const [sorting, setSorting] = useState<SortingState>([])
   const [columnResizeMode] = useState<ColumnResizeMode>('onChange')
   const [selectedIds, setSelectedIds] = useState<string[]>([])
-
+const [jobDetail, setJobDetail] = useState<GetJobProps | null>(null)
   useEffect(() => {
     if (!jobId) return
     const fetchCandidates = async () => {
       try {
         const res = await axios.get(`/api/v1/candidates/by-job/${jobId}`)
         setCandidates(res.data.data)
+        const jobData = await getJobTitle(jobId as string)
+      setJobDetail(jobData) 
+        console.log(data)
       } catch (err) {
         console.error(err)
       } finally {
@@ -111,7 +120,7 @@ export default function ManageCandidatePage() {
               type="checkbox"
               checked={selectedIds.length === data.length && data.length > 0}
               onChange={toggleSelectAll}
-              className="w-5 h-5 border-2 border-greenBorder rounded-md cursor-pointer appearance-none checked:bg-greenBorder checked:border-greenBorder checked:ring-1 checked:ring-greenBorder focus:outline-none"
+              className="w-5 h-5 border-2 border-greenBorder rounded-sm cursor-pointer appearance-none checked:bg-greenBorder checked:border-greenBorder checked:ring-1 checked:ring-greenBorder focus:outline-none"
             />
             <span>NAMA LENGKAP</span>
           </div>
@@ -125,7 +134,7 @@ export default function ManageCandidatePage() {
               type="checkbox"
               checked={selectedIds.includes(row.original.id)}
               onChange={() => toggleSelect(row.original.id)}
-              className="w-5 h-5 border-2 border-greenBorder rounded-md cursor-pointer appearance-none checked:bg-greenBorder checked:border-greenBorder checked:ring-1 checked:ring-greenBorder focus:outline-none"
+              className="w-5 h-5 border-2 border-greenBorder rounded-sm cursor-pointer appearance-none checked:bg-greenBorder checked:border-greenBorder checked:ring-1 checked:ring-greenBorder focus:outline-none"
             />
             <span>{getValue()}</span>
           </div>
@@ -172,7 +181,7 @@ export default function ManageCandidatePage() {
   return (
     <div className="p-6 flex flex-col h-[94vh]">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-lg font-bold text-gray-800">Front End Developer</h2>
+        <h2 className="text-lg font-bold text-gray-800">{jobDetail?.title}</h2>
         {/* <p className="text-sm text-gray-500">
           Total Candidates: {candidates.length}
         </p> */}
@@ -180,7 +189,7 @@ export default function ManageCandidatePage() {
 
       <div className="flex overflow-auto grow border border-greyBorder rounded-lg shadow-lg">
         <div className="p-6 grow">
-          <table className="min-w-full border border-greyBorder rounded-lg grow border-collapse text-sm text-left shadow-lg">
+          <table className="min-w-full border  border-greyBorder rounded-lg grow border-collapse text-sm text-left shadow-lg">
             <thead className="bg-whiteTable text-blackText font-bold text-xs">
               {table.getHeaderGroups().map((headerGroup) => (
                 <tr key={headerGroup.id}>
