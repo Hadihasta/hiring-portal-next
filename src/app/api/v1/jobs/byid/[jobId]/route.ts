@@ -11,7 +11,7 @@ function safeJson<T>(data: T): T {
 
 export async function GET(
   _request: NextRequest,
-  { params }: { params: { jobId: string } }   // ✅ only this — no union, no Promise
+  { params }: { params: Record<string, string> }
 ) {
   try {
     const { jobId } = params
