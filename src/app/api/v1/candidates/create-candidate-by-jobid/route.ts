@@ -19,10 +19,10 @@ interface ConfigItem {
   label?: string;
   order_index?: number;
 }
-
-export async function POST(request: NextRequest, context: { params: { jobId: string } }) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+export async function POST(request: NextRequest, context: { params: any }) {
   try {
-    const body = await request.json();
+    const body = await request.json()
     const { jobId, fields, configs } = body as {
       jobId: string | number;
       fields: Record<string, FieldValue>;
