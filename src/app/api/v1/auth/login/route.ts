@@ -1,4 +1,3 @@
-export const runtime = 'nodejs' // ✅ Wajib di Vercel agar Prisma tidak crash di Edge runtime
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { signJwt } from '@/lib/jwt'
@@ -11,6 +10,7 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 })
     }
+
     // Cari user berdasarkan email
     const user = await prisma.users.findUnique({
       where: { email },
@@ -20,6 +20,7 @@ export async function POST(req: Request) {
     if (!user) {
       return NextResponse.json({ error: 'Invalid credentials Email not Found' }, { status: 401 })
     }
+
     // Bandingkan password secara langsung (karena tidak di-hash)
     if (user.password !== password) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 })
@@ -30,6 +31,7 @@ export async function POST(req: Request) {
       email: user.email,
       password: user.password,
     })
+
     // Response sukses
     return NextResponse.json({
       message: 'Login successful',
