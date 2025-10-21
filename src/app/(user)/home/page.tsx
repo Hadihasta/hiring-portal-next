@@ -36,7 +36,8 @@ const Page = () => {
     try {
       const res = await getJob()
       setListJobs(res)
-      if (res.length > 0) setSelectedJob(res[0]) // auto select first job
+      // auto select first job
+      if (res.length > 0) setSelectedJob(res[0]) 
     } catch (error) {
       console.error('Error fetching jobs:', error)
     } finally {

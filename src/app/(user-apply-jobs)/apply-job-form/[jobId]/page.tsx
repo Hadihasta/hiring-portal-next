@@ -2,10 +2,15 @@
 
 import React, { useEffect, useReducer, useState, ChangeEvent } from 'react'
 import Image from 'next/image'
-import { useParams } from 'next/navigation'
+import { useParams, useRouter } from 'next/navigation'
 import axios from '@/lib/axios'
-import PoseDetector from '@/components/camera/PoseDetector'
 import ModalPoseDetector from '@/components/camera/ModalPoseDetector'
+
+// 🧩 Shadcn UI imports
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
+import { Calendar } from '@/components/ui/calendar'
+
+
 
 async function fetchJobById(id: string) {
   const res = await axios.get(`/jobs/byid/${id}`)
@@ -71,11 +76,15 @@ function reducer(state: State, action: Action): State {
   }
 }
 
+
+
 const ApplyJobPage = () => {
   const { jobId } = useParams<{ jobId: string }>()
   const [state, dispatch] = useReducer(reducer, { fields: {}, configs: [], submitting: false })
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [photo, setPhoto] = useState<string | null>(null)
+
+  const router = useRouter()
 
   useEffect(() => {
     if (!jobId) return
@@ -84,9 +93,22 @@ const ApplyJobPage = () => {
     })
   }, [jobId])
 
-  const handleCapture = (dataUrl: string) => {
-    console.log( " photo <<< masuk ke state page nih")
-    setPhoto(dataUrl)
+  const handleCapture = async (dataUrl: string) => {
+    try {
+      const res = await axios.post('/upload', { imageBase64: dataUrl })
+      const imagePath = res.data.path
+
+      setPhoto(imagePath)
+      dispatch({
+        type: 'setField',
+        key: 'photo_profile',
+        value: imagePath,
+      })
+      console.log('Foto berhasil diupload:', imagePath)
+    } catch (err) {
+      console.error('Upload gagal:', err)
+      alert('Upload foto gagal.')
+    }
   }
 
   const handleChange = (key: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -94,18 +116,10 @@ const ApplyJobPage = () => {
     dispatch({ type: 'setError', key, error: false })
   }
 
-  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      const reader = new FileReader()
-      reader.onload = () => {
-        setPhoto(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
+  const handleButtonBack = () => router.push(`/home`)
 
   const validateAndSubmit = () => {
+    console.log(state)
     let hasError = false
     state.configs.forEach((cfg) => {
       if (cfg.required && cfg.visible) {
@@ -131,14 +145,11 @@ const ApplyJobPage = () => {
       <div className="bg-white w-full max-w-2xl rounded-lg shadow p-8">
         {/* Header */}
         <div className="flex flex-row items-center pb-4 mb-6 gap-4">
-          <button className="cursor-pointer border-greyBorder border-2 rounded-lg hover:shadow-md p-2">
-            <Image
-              src="/asset/icon/icon-back.svg"
-              alt="back"
-              width={20}
-              height={20}
-              className="object-cover"
-            />
+          <button
+            onClick={handleButtonBack}
+            className="cursor-pointer border-greyBorder border-2 rounded-lg hover:shadow-md p-2"
+          >
+            <Image src="/asset/icon/icon-back.svg" alt="back" width={20} height={20} className="object-cover" />
           </button>
           <h1 className="text-lg font-bold text-blackText grow">Apply Front End at Rakamin</h1>
           <p className="text-sm text-greyNeutral mt-1">This field required to fill</p>
@@ -149,21 +160,15 @@ const ApplyJobPage = () => {
           <span className="text-redDanger text-sm font-bold">*Required</span>
           <div className="flex flex-col items-start my-8">
             <div className="text-xs font-bold">Photo Profile</div>
-            {/* Preview foto */}
             <div className="relative w-28 h-28 my-4">
               {photo ? (
-                <Image
-                  src={photo}
-                  alt="Captured Photo"
-                  fill
-                  className="object-cover rounded-md"
-                />
+                <Image src={photo} alt="Captured Photo" fill className="object-cover rounded-md" />
               ) : (
                 <Image
                   src="/asset/global/avatar-placeholder.svg"
                   alt="Default Avatar"
                   fill
-                  className="object-cover"
+                  className="object-cover rounded-md"
                 />
               )}
             </div>
@@ -183,7 +188,7 @@ const ApplyJobPage = () => {
             </label>
           </div>
 
-          {/* DYNAMIC FORM FIELDS */}
+          {/* DYNAMIC FIELDS */}
           {state.configs
             .filter((cfg) => cfg.visible && cfg.field_key !== 'photo_profile')
             .sort((a, b) => a.order_index - b.order_index)
@@ -196,20 +201,81 @@ const ApplyJobPage = () => {
                   return (
                     <div key={cfg.id}>
                       <label className="block text-sm font-medium mb-1">
-                        {cfg.label} {cfg.required && <span className="text-red-500">*</span>}
+                        {cfg.label} {cfg.required && <span className="text-redDanger">*</span>}
                       </label>
                       <select
                         value={field.value}
                         onChange={handleChange(cfg.field_key)}
                         className={`w-full border rounded-md px-3 py-2 ${
-                          field.error ? 'border-red-500' : 'border-gray-300'
+                          field.error ? 'border-redDanger' : 'border-greyBorder'
                         }`}
                       >
                         <option value="">Select gender</option>
                         <option value="male">Male</option>
                         <option value="female">Female</option>
                       </select>
-                      {field.error && <p className="text-xs text-red-500">This field is required</p>}
+                      {field.error && <p className="text-xs text-redDanger">This field is required</p>}
+                    </div>
+                  )
+
+                case 'date_of_birth':
+                  return (
+                    <div key={cfg.id}>
+                      <label className="block text-sm font-medium mb-1">
+                        {cfg.label} {cfg.required && <span className="text-redDanger">*</span>}
+                      </label>
+                      <Popover>
+                        <PopoverTrigger asChild>
+                          <button
+                            type="button"
+                            className={`w-full border border-greyBorder rounded-md px-3 py-2 text-left ${
+                              field.value ? 'text-blackText' : 'text-gray-400'
+                            } ${field.error ? 'border-redDanger' : ''}`}
+                          >
+                            {field.value
+                              ? new Date(field.value).toLocaleDateString('en-GB', {
+                                  day: '2-digit',
+                                  month: 'short',
+                                  year: 'numeric',
+                                })
+                              : 'Select date'}
+                          </button>
+                        </PopoverTrigger>
+                        <PopoverContent className="w-auto p-0" align="start">
+                          <Calendar
+                            mode="single"
+                            selected={field.value ? new Date(field.value) : undefined}
+                            onSelect={(date) => {
+                              dispatch({
+                                type: 'setField',
+                                key: cfg.field_key,
+                                value: date ? date.toISOString() : '',
+                              })
+                            }}
+                            initialFocus
+                          />
+                        </PopoverContent>
+                      </Popover>
+                      {field.error && <p className="text-xs text-redDanger">This field is required</p>}
+                    </div>
+                  )
+
+                case 'phone_number':
+                  return (
+                    <div key={cfg.id}>
+                      <label className="block text-sm font-medium mb-1">
+                        {cfg.label} {cfg.required && <span className="text-redDanger">*</span>}
+                      </label>
+                      <input
+                        type="number"
+                        placeholder="Enter phone number"
+                        value={field.value}
+                        onChange={handleChange(cfg.field_key)}
+                        className={`w-full border border-greyBorder rounded-md p-2 focus:outline-none focus:ring-2 ${
+                          field.error ? 'border-redDanger focus:ring-redDanger' : 'focus:ring-greenPrimary'
+                        }`}
+                      />
+                      {field.error && <p className="text-xs text-redDanger">This field is required</p>}
                     </div>
                   )
 
@@ -217,32 +283,24 @@ const ApplyJobPage = () => {
                   return (
                     <div key={cfg.id}>
                       <label className="block text-sm font-medium mb-1">
-                        {cfg.label} {cfg.required && <span className="text-red-500">*</span>}
+                        {cfg.label} {cfg.required && <span className="text-redDanger">*</span>}
                       </label>
                       <input
                         type="text"
                         placeholder={`Enter your ${cfg.label.toLowerCase()}`}
                         value={field.value}
                         onChange={handleChange(cfg.field_key)}
-                        className={`w-full border rounded-md px-3 py-2 ${
-                          field.error ? 'border-red-500' : 'border-gray-300'
+                        className={`w-full border border-greyBorder rounded-md p-2 focus:outline-none focus:ring-2  ${
+                          field.error ? 'border-redDanger focus:ring-redDanger' : 'focus:ring-greenPrimary'
                         }`}
                       />
-                      {field.error && <p className="text-xs text-red-500">This field is required</p>}
+                      {field.error && <p className="text-xs text-redDanger">This field is required</p>}
                     </div>
                   )
               }
             })}
 
-          {/* <div className="flex justify-center items-center h-screen bg-gray-100">
-            <PoseDetector />
-          </div> */}
-
-          <ModalPoseDetector
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onCapture={handleCapture}
-          />
+          <ModalPoseDetector isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onCapture={handleCapture} />
 
           <button
             type="button"

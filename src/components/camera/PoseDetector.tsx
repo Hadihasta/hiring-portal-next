@@ -3,6 +3,7 @@
 import React, { useEffect, useRef, useState } from 'react'
 import type { Results } from '@mediapipe/hands'
 import type { Hands } from '@mediapipe/hands'
+import { div } from 'motion/react-client'
 
 interface PoseDetectorProps {
   onCaptured: (dataUrl: string) => void
@@ -183,8 +184,13 @@ const PoseDetector: React.FC<PoseDetectorProps> = ({ onCaptured, stepProgress })
         {/* <div className="absolute bottom-2 left-2 bg-black/70 text-white text-sm px-4 py-2 rounded-lg">{message}</div> */}
         {/* Overlay countdown */}
         {countdown !== null && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white text-7xl font-bold transition-all duration-300">
+                
+          <div className='absolute gap-2 inset-0 flex flex-col items-center justify-center bg-black/60'>
+
+            <div className='text-white font-bold text-sm'>Capturing photo in</div>
+           <div className='className="  text-white text-7xl font-bold transition-all duration-300"'>
             {countdown}
+           </div>
           </div>
         )}
       </div>
