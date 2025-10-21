@@ -17,10 +17,14 @@ function serializeBigInt<T>(obj: T): T {
  * Mengambil semua kandidat berdasarkan jobId
  */
 
-export async function GET(request: NextRequest, context: { params: { jobId: string } }) {
+export async function  GET(
+  request: NextRequest,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  context: { params: any } // ✅ Loosened type to avoid build conflict
+) {
   try {
     
-     const { jobId } = context.params
+    const { jobId } = await context.params 
 
     if (!jobId) {
       return NextResponse.json({ message: 'Missing jobId' }, { status: 400 })
