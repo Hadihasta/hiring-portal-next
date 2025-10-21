@@ -9,9 +9,17 @@ function safeJson<T>(data: T): T {
   )
 }
 
-export async function GET(request: NextRequest, context: { params: { jobId: string } }) {
+export async function  GET(
+  request: NextRequest,
+  context: { params: { jobId: string } } | { params: Promise<{ jobId: string }> }
+) {
   try {
-   const { jobId } = context.params
+  const params = await Promise.resolve(context.params)
+    const { jobId } = params
+
+    if (!jobId) {
+      return NextResponse.json({ message: 'Missing jobId' }, { status: 400 })
+    }
     const jobIdBigInt = BigInt(jobId)
 
     const job = await prisma.jobs.findUnique({
