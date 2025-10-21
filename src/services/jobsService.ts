@@ -34,7 +34,7 @@ export interface JobItem {
   id: string
   slug: string
   title: string
-  description: string       // ✅ add this
+  description: string       
   status: string
   salary_range: {
     min: number

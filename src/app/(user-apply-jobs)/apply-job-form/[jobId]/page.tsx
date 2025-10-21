@@ -1,156 +1,237 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useEffect, useReducer, useState, ChangeEvent } from 'react'
 import Image from 'next/image'
+import { useParams } from 'next/navigation'
+import axios from '@/lib/axios'
+
+async function fetchJobById(id: string) {
+  const res = await axios.get(`/jobs/byid/${id}`)
+  return res.data.data
+}
+
+
+interface JobConfiguration {
+  id: string
+  field_key: string
+  label: string
+  required: boolean
+  visible: boolean
+  order_index: number
+}
+
+interface JobData {
+  id: string
+  title: string
+  job_configurations: JobConfiguration[]
+}
+
+interface FieldState {
+  value: string
+  error: boolean
+}
+
+interface State {
+  fields: Record<string, FieldState>
+  configs: JobConfiguration[]
+  submitting: boolean
+}
+
+type Action =
+  | { type: 'setConfigs'; configs: JobConfiguration[] }
+  | { type: 'setField'; key: string; value: string }
+  | { type: 'setError'; key: string; error: boolean }
+  | { type: 'setSubmitting'; value: boolean }
+
+function reducer(state: State, action: Action): State {
+  switch (action.type) {
+    case 'setConfigs':
+      const initialFields: Record<string, FieldState> = {}
+      action.configs.forEach((c) => {
+        if (c.visible) {
+          initialFields[c.field_key] = { value: '', error: false }
+        }
+      })
+      return { ...state, configs: action.configs, fields: initialFields }
+    case 'setField':
+      return {
+        ...state,
+        fields: { ...state.fields, [action.key]: { ...state.fields[action.key], value: action.value } },
+      }
+    case 'setError':
+      return {
+        ...state,
+        fields: { ...state.fields, [action.key]: { ...state.fields[action.key], error: action.error } },
+      }
+    case 'setSubmitting':
+      return { ...state, submitting: action.value }
+    default:
+      return state
+  }
+}
 
 const ApplyJobPage = () => {
+  const { jobId } = useParams<{ jobId: string }>()
+  const [state, dispatch] = useReducer(reducer, { fields: {}, configs: [], submitting: false })
   const [photo, setPhoto] = useState<string | null>(null)
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  useEffect(() => {
+    if (!jobId) return
+    fetchJobById(jobId).then((job: JobData) => {
+      dispatch({ type: 'setConfigs', configs: job.job_configurations })
+    })
+  }, [jobId])
+
+  const handleChange = (key: string) => (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    dispatch({ type: 'setField', key, value: e.target.value })
+    dispatch({ type: 'setError', key, error: false })
+  }
+
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (file) {
       const reader = new FileReader()
-      reader.onloadend = () => setPhoto(reader.result as string)
+      reader.onload = () => {
+        setPhoto(reader.result as string)
+      }
       reader.readAsDataURL(file)
     }
   }
 
+  const validateAndSubmit = () => {
+    let hasError = false
+    state.configs.forEach((cfg) => {
+      if (cfg.required && cfg.visible) {
+        const field = state.fields[cfg.field_key]
+        if (!field?.value.trim()) {
+          dispatch({ type: 'setError', key: cfg.field_key, error: true })
+          hasError = true
+        }
+      }
+    })
+
+    if (!hasError) {
+      dispatch({ type: 'setSubmitting', value: true })
+      setTimeout(() => {
+        alert('Form submitted successfully ✅')
+        dispatch({ type: 'setSubmitting', value: false })
+      }, 1000)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gray-100 flex justify-center py-10 px-4">
+    <div className="min-h-screen bg-pureWhite flex justify-center py-10 px-4">
       <div className="bg-white w-full max-w-2xl rounded-lg shadow p-8">
-        {/* HEADER */}
-        <div className="border-b pb-4 mb-6">
-          <h1 className="text-2xl font-semibold text-gray-800">
+        {/* Header */}
+        <div className="flex flex-row items-center pb-4 mb-6 gap-4">
+          <button className="cursor-pointer border-greyBorder border-2 rounded-lg hover:shadow-md p-2">
+            <Image
+              src="/asset/icon/icon-back.svg"
+              alt="back"
+              width={20}
+              height={20}
+              className="object-cover"
+            />
+          </button>
+          <h1 className="text-lg font-bold text-blackText grow">
             Apply Front End at Rakamin
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
-            <span className="text-red-500">*</span> Required field
+          <p className="text-sm text-greyNeutral mt-1">
+            This field required to fill
           </p>
         </div>
 
-        {/* PHOTO UPLOAD */}
-        <div className="flex flex-col items-center mb-8">
-          <div className="relative w-28 h-28 rounded-full overflow-hidden border border-gray-300">
-            {photo ? (
-              <Image src={photo} alt="Profile" fill className="object-cover" />
-            ) : (
+        <form className="space-y-5">
+          {/* PHOTO UPLOAD SECTION */}
+           <span className="text-redDanger text-sm font-bold">*Required</span>
+          <div className="flex flex-col items-start my-8">
+            <div className="text-xs font-bold">Photo Profile</div>
+            <div className="relative w-28 h-28 my-4">
               <Image
-                src="/asset/global/default-avatar.png"
+                src={photo || "/asset/global/avatar-placeholder.svg"}
                 alt="Default Avatar"
                 fill
+                className="object-cover rounded-full border"
+              />
+            </div>
+            <label className="flex items-center cursor-pointer border-greyBorder border-2 text-blackText px-4 py-2 rounded-lg hover:bg-gray-200 text-sm gap-2">
+              <Image
+                src="/asset/icon/download-icon.svg"
+                alt="upload"
+                width={20}
+                height={20}
                 className="object-cover"
               />
-            )}
-          </div>
-          <label className="mt-3 cursor-pointer bg-gray-100 border border-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-200 text-sm">
-            📸 Take a Picture
-            <input type="file" accept="image/*" onChange={handleFileChange} className="hidden" />
-          </label>
-        </div>
-
-        {/* FORM */}
-        <form className="space-y-5">
-          {/* Full Name */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Full Name<span className="text-red-500">*</span>
-            </label>
-            <input
-              type="text"
-              placeholder="Enter your full name"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
-          </div>
-
-          {/* Date of Birth */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Date of Birth
-            </label>
-            <input
-              type="date"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
-          </div>
-
-          {/* Gender */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Gender
-            </label>
-            <div className="flex gap-6">
-              <label className="flex items-center gap-2">
-                <input type="radio" name="gender" value="female" /> Female
-              </label>
-              <label className="flex items-center gap-2">
-                <input type="radio" name="gender" value="male" /> Male
-              </label>
-            </div>
-          </div>
-
-          {/* Domicile */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Domicile
-            </label>
-            <select className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400">
-              <option value="">Choose your domicile</option>
-              <option value="jakarta">Jakarta</option>
-              <option value="bandung">Bandung</option>
-              <option value="surabaya">Surabaya</option>
-            </select>
-          </div>
-
-          {/* Phone Number */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Phone Number<span className="text-red-500">*</span>
-            </label>
-            <div className="flex gap-2">
-              <span className="flex items-center border border-gray-300 rounded-md px-3 bg-gray-100">
-                +62
-              </span>
+              <div className="text-sm font-bold">Take a Picture</div>
               <input
-                type="tel"
-                placeholder="81234567890"
-                className="flex-1 border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-                required
+                type="file"
+                accept="image/*"
+                onChange={handleFileChange}
+                className="hidden"
               />
-            </div>
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Email<span className="text-red-500">*</span>
             </label>
-            <input
-              type="email"
-              placeholder="Enter your email address"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-              required
-            />
           </div>
 
-          {/* LinkedIn */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              LinkedIn
-            </label>
-            <input
-              type="url"
-              placeholder="https://linkedin.com/in/username"
-              className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
-          </div>
+          {/* DYNAMIC FORM FIELDS */}
+          {state.configs
+            .filter((cfg) => cfg.visible && cfg.field_key !== 'photo_profile')
+            .sort((a, b) => a.order_index - b.order_index)
+            .map((cfg) => {
+              const field = state.fields[cfg.field_key]
+              if (!field) return null
 
-          {/* Submit */}
+              switch (cfg.field_key) {
+                case 'gender':
+                  return (
+                    <div key={cfg.id}>
+                      <label className="block text-sm font-medium mb-1">
+                        {cfg.label} {cfg.required && <span className="text-red-500">*</span>}
+                      </label>
+                      <select
+                        value={field.value}
+                        onChange={handleChange(cfg.field_key)}
+                        className={`w-full border rounded-md px-3 py-2 ${
+                          field.error ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      >
+                        <option value="">Select gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                      </select>
+                      {field.error && <p className="text-xs text-red-500">This field is required</p>}
+                    </div>
+                  )
+
+                default:
+                  return (
+                    <div key={cfg.id}>
+                      <label className="block text-sm font-medium mb-1">
+                        {cfg.label} {cfg.required && <span className="text-red-500">*</span>}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={`Enter your ${cfg.label.toLowerCase()}`}
+                        value={field.value}
+                        onChange={handleChange(cfg.field_key)}
+                        className={`w-full border rounded-md px-3 py-2 ${
+                          field.error ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                      />
+                      {field.error && <p className="text-xs text-red-500">This field is required</p>}
+                    </div>
+                  )
+              }
+            })}
+
           <button
-            type="submit"
-            className="w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-md transition"
+            type="button"
+            onClick={validateAndSubmit}
+            disabled={state.submitting}
+            className={`w-full bg-teal-600 hover:bg-teal-700 text-white font-semibold py-3 rounded-md transition ${
+              state.submitting ? 'opacity-50 cursor-not-allowed' : ''
+            }`}
           >
-            Submit
+            {state.submitting ? 'Submitting...' : 'Submit'}
           </button>
         </form>
       </div>
