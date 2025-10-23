@@ -102,7 +102,7 @@ const ApplyJobPage = () => {
   const handleCapture = async (dataUrl: string) => {
     try {
       const res = await axios.post('/upload', { imageBase64: dataUrl })
-      const imagePath = res.data.path
+      const imagePath = res.data.publicUrl
 
       setPhoto(imagePath)
       dispatch({
