@@ -139,7 +139,7 @@ const ApplyJobPage = () => {
         candidate_id : candidateId,
          imageBase64: dataUrl 
       }
-      const res = await axios.post('/upload', {payload})
+      const res = await axios.post('/upload', payload)
       const imagePath = res.data.publicUrl
 
       setPhoto(imagePath)
