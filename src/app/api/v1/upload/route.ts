@@ -23,16 +23,13 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    // ---- Konversi base64 ke buffer ----
     const base64Data = imageBase64.replace(/^data:image\/\w+;base64,/, '')
     const fileBuffer = Buffer.from(base64Data, 'base64')
 
-    // ---- Buat nama file unik ----
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-')
     const fileName = `photo-${candidate_id}-${timestamp}.png`
     const filePath = `uploads/${fileName}`
 
-    // ---- Upload ke Supabase Storage ----
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('photos')
       .upload(filePath, fileBuffer, {
@@ -42,20 +39,18 @@ export async function POST(req: NextRequest) {
 
     if (uploadError) {
       console.error('❌ Supabase upload error:', uploadError)
-      return NextResponse.json({ error: 'Failed to upload file to Supabase', details: uploadError.message }, { status: 500 })
+      return NextResponse.json(
+        { error: 'Failed to upload file', details: uploadError.message },
+        { status: 500 }
+      )
     }
 
-    console.log('✅ File uploaded to Supabase:', uploadData)
-
-    // ---- Ambil public URL ----
     const { data: publicUrlData } = supabase.storage
       .from('photos')
       .getPublicUrl(filePath)
 
     const publicUrl = publicUrlData.publicUrl
-    console.log('✅ Public URL:', publicUrl)
 
-    // ---- Simpan ke database ----
     const photoRecord = await prisma.photos.create({
       data: {
         candidate_id: Number(candidate_id),
@@ -64,16 +59,24 @@ export async function POST(req: NextRequest) {
       },
     })
 
-    console.log('✅ Photo record created:', photoRecord)
+    // 🩵 FIX: convert semua BigInt jadi string biar aman
+    const safePhotoRecord = JSON.parse(
+      JSON.stringify(photoRecord, (_, value) =>
+        typeof value === 'bigint' ? value.toString() : value
+      )
+    )
 
     return NextResponse.json({
       success: true,
       publicUrl,
-      photoRecord,
+      photoRecord: safePhotoRecord,
     })
   } catch (err: any) {
     console.error('🔥 Server error:', err)
-    return NextResponse.json({ error: 'Internal Server Error', details: err.message }, { status: 500 })
+    return NextResponse.json(
+      { error: 'Internal Server Error', details: err.message },
+      { status: 500 }
+    )
   } finally {
     await prisma.$disconnect()
   }
