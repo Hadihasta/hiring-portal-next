@@ -1,7 +1,7 @@
 import axios from '../lib/axios'
 
 export interface CreateCandidatePayload {
-  jobId: string | number
+  candidateId: string | number
   fields: Record<string, { value?: string | number | boolean | null }>
   configs: { field_key: string; label?: string; order_index?: number }[]
 }
@@ -25,6 +25,17 @@ export async function createCandidateByJobId(payload: CreateCandidateByUserId) {
   try {
     const res = await axios.post('/candidates/create-candidate/by-userid', payload)
     return res.data
+  } catch (error) {
+    console.log('error create candidate by user id', error)
+  }
+}
+
+
+
+export async function getCandidateByJobId(payload: CreateCandidateByUserId) {
+  try {
+    const res = await axios.post('/candidates/get-candidate/byuserjobid', payload)
+    return res.data.data
   } catch (error) {
     console.log('error create candidate by user id', error)
   }

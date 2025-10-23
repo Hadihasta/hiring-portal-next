@@ -1,6 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+// src/app/api/v1/candidates/add-details/route.ts
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 
+// ✅ Helper untuk konversi BigInt ke Number agar bisa dikirim sebagai JSON
 function serializeBigInt<T>(obj: T): T {
   return JSON.parse(
     JSON.stringify(obj, (_, value) =>
@@ -9,7 +11,6 @@ function serializeBigInt<T>(obj: T): T {
   );
 }
 
-//  Definisikan tipe agar lebih aman
 interface FieldValue {
   value?: string | number | boolean | null;
 }
@@ -19,48 +20,50 @@ interface ConfigItem {
   label?: string;
   order_index?: number;
 }
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function POST(request: NextRequest, context: { params: any }) {
+
+/**
+ * Endpoint: POST /api/v1/candidates/add-details
+ * Body: { candidateId, fields, configs }
+ */
+export async function POST(request: NextRequest) {
   try {
-    const body = await request.json()
-    const { jobId, fields, configs } = body as {
-      jobId: string | number;
+    const body = await request.json();
+    const { candidateId, fields, configs } = body as {
+      candidateId: string | number;
       fields: Record<string, FieldValue>;
       configs: ConfigItem[];
     };
 
-    if (!jobId || !fields || !configs) {
+    if (!candidateId || !fields || !configs) {
       return NextResponse.json(
-        { error: "Missing jobId, fields, or configs" },
+        { error: "Missing candidateId, fields, or configs" },
         { status: 400 }
       );
     }
 
-    //  nanti ambil dari session user (sementara dummy)
-    const userId = 2;
-
-    //. Buat candidate baru
-    const newCandidate = await prisma.candidates.create({
-      data: {
-        job_id: BigInt(jobId),
-        user_id: BigInt(userId),
-        status: "submitted",
-      },
+    // ✅ Pastikan candidate ada
+    const candidate = await prisma.candidates.findUnique({
+      where: { id: BigInt(candidateId) },
     });
 
-    const candidateId = newCandidate.id;
+    if (!candidate) {
+      return NextResponse.json(
+        { error: "Candidate not found" },
+        { status: 404 }
+      );
+    }
 
-    // . Pisahkan photo_profile dari fields
+    // ✅ Pisahkan photo_profile
     const photoField = fields["photo_profile"];
     const photoUrl = photoField?.value ? String(photoField.value) : null;
 
-    //  Masukkan field lain ke candidate_attributes
+    // ✅ Buat daftar attribute yang akan dimasukkan
     const attributeEntries = Object.entries(fields)
       .filter(([key]) => key !== "photo_profile")
       .map(([key, fieldValue]) => {
         const config = configs.find((c) => c.field_key === key);
         return {
-          candidate_id: candidateId,
+          candidate_id: BigInt(candidateId),
           key,
           label: config?.label ?? key,
           value: String(fieldValue?.value ?? ""),
@@ -74,32 +77,35 @@ export async function POST(request: NextRequest, context: { params: any }) {
       });
     }
 
-    //  Simpan photo_profile ke tabel photos (jika ada)
+    // ✅ Simpan foto (jika ada)
     if (photoUrl) {
       await prisma.photos.create({
         data: {
-          candidate_id: candidateId,
+          candidate_id: BigInt(candidateId),
           photo_url: photoUrl,
           gesture_detected: "Pose 1",
         },
       });
     }
 
-    //  Return hasil akhir
+    // ✅ Ambil kembali data lengkap candidate
+    const fullCandidate = await prisma.candidates.findUnique({
+      where: { id: BigInt(candidateId) },
+      include: {
+        attributes: true,
+        photos: true,
+      },
+    });
+
     return NextResponse.json(
       {
-        message: "Candidate successfully created",
-        data: serializeBigInt({
-          candidate: newCandidate,
-          attributes: attributeEntries,
-          photo: photoUrl,
-        }),
+        message: "Candidate details added successfully",
+        data: serializeBigInt(fullCandidate),
       },
       { status: 201 }
     );
   } catch (error) {
-    console.error("POST /create-candidate-by-jobid error:", error);
-
+    console.error("POST /add-details error:", error);
     const message =
       error instanceof Error ? error.message : "Unknown server error";
 
