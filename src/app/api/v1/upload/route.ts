@@ -51,7 +51,8 @@ export async function POST(req: NextRequest) {
     // Simpan ke tabel photos
     const photoRecord = await prisma.photos.create({
       data: {
-        candidate_id: BigInt(candidate_id),
+        // hardcode dulu
+        candidate_id: 2,
         photo_url: publicUrl,
         gesture_detected: gesture_detected || null,
       },

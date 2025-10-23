@@ -8,7 +8,7 @@ import ModalPoseDetector from '@/components/camera/ModalPoseDetector'
 
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Calendar } from '@/components/ui/calendar'
-import { createCandidate } from '@/services/candidateService'
+import { createCandidate , createCandidateByJobId } from '@/services/candidateService'
 
 async function fetchJobById(id: string) {
   const res = await axios.get(`/jobs/byid/${id}`)
@@ -78,7 +78,8 @@ function reducer(state: State, action: Action): State {
       return state
   }
 }
-
+// fecth create candidate by job id dan user id , 
+//  karena belum ada session hardcode dulu user id dengan 2 ===> itu user id user pada production database
 const ApplyJobPage = () => {
   const { jobId } = useParams<{ jobId: string }>()
   const [state, dispatch] = useReducer(reducer, {
@@ -93,11 +94,35 @@ const ApplyJobPage = () => {
   const router = useRouter()
 
   useEffect(() => {
+
+
+
     if (!jobId) return
+    // create candidate ketika pertama kali load 
+    createCandidateByUserId()
+    // dapatkan job info dari job id
     fetchJobById(jobId).then((job: JobData) => {
       dispatch({ type: 'setConfigs', configs: job.job_configurations })
     })
   }, [jobId])
+
+
+
+  const createCandidateByUserId = async() => {
+    try {
+
+      const payload = {
+        jobId : jobId,
+        userId : 2
+      }
+      console.log(payload , " <<<< here job cahgned")
+
+      const res = await createCandidateByJobId(payload)
+      console.log(res)
+    } catch (error) {
+      console.log(error)
+    }
+  }
 
   const handleCapture = async (dataUrl: string) => {
     try {
@@ -152,7 +177,9 @@ const ApplyJobPage = () => {
         configs: state.configs,
       }
 
-      //  Kirim ke service
+
+      // butuh pembaruan harus create candidate dulu baru bisa uploud foto karena table candidate kosong
+      //  Kirim ke service 
       const response = await createCandidate(payload)
       router.push(`/apply-job-form/succesfully-apply`)
 
