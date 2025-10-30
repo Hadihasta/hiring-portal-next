@@ -9,36 +9,33 @@ const allowedOrigins = [
   "http://localhost:3000",
 ];
 
-export function middleware(req: NextRequest) {
+export async function middleware(req: NextRequest) {
   const origin = req.headers.get("origin") || "";
   const isAllowed = allowedOrigins.includes(origin);
 
-  // hanya intercept API route
-  if (req.nextUrl.pathname.startsWith("/api/")) {
-    // tangani preflight
-    if (req.method === "OPTIONS") {
-      return new Response(null, {
-        status: 200,
-        headers: {
-          "Access-Control-Allow-Origin": isAllowed ? origin : "*",
-          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
-          "Access-Control-Allow-Headers": "Content-Type, Authorization",
-        },
-      });
-    }
-
-    // response normal
-    const res = NextResponse.next();
-    res.headers.set("Access-Control-Allow-Origin", isAllowed ? origin : "*");
-    res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
-    return res;
+  // Handle preflight OPTIONS request
+  if (req.method === "OPTIONS") {
+    return new Response(null, {
+      status: 204,
+      headers: {
+        "Access-Control-Allow-Origin": isAllowed ? origin : "*",
+        "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    });
   }
 
-  return NextResponse.next();
+  // Continue the request and modify response
+  const res = NextResponse.next();
+
+  // Tambahkan header CORS di response
+  res.headers.set("Access-Control-Allow-Origin", isAllowed ? origin : "*");
+  res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+  res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
+
+  return res;
 }
 
 export const config = {
-  matcher: ["/api/:path*"],
+  matcher: ["/:path*"],
 };
