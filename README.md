@@ -40,7 +40,7 @@ LOCAL SETUP
 # Docker for server
  <!--run from root dir (pastikan docker-compose.yml ada)  -->
 run : 
-"docker compose up --build  "
+"docker compose up --build"
 
 # Prisma for migrate and init the database
 <!-- Npm i pastikan prisma dan prisma client ada -->
