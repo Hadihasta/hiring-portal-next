@@ -6,25 +6,32 @@ const allowedOrigins = [
   "https://www.hijrihadi.space",
   "https://hiring-portal-next-jrl7.vercel.app",
   "https://hiring-portal-next-jrl7-hadis-projects-30e4620e.vercel.app",
-  "http://localhost:3000"
+  "http://localhost:3000",
 ];
 
 export function middleware(req: NextRequest) {
-  const origin = req.headers.get("origin");
-  const isAllowed = origin && allowedOrigins.includes(origin);
+  const origin = req.headers.get("origin") || "";
+  const isAllowed = allowedOrigins.includes(origin);
 
-  if (req.nextUrl.pathname.startsWith("/api")) {
-    const res = NextResponse.next();
-
-    res.headers.set("Access-Control-Allow-Origin", isAllowed ? origin! : "*");
-    res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
-    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
-
+  // hanya intercept API route
+  if (req.nextUrl.pathname.startsWith("/api/")) {
+    // tangani preflight
     if (req.method === "OPTIONS") {
       return new Response(null, {
-        headers: res.headers,
+        status: 200,
+        headers: {
+          "Access-Control-Allow-Origin": isAllowed ? origin : "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        },
       });
     }
+
+    // response normal
+    const res = NextResponse.next();
+    res.headers.set("Access-Control-Allow-Origin", isAllowed ? origin : "*");
+    res.headers.set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+    res.headers.set("Access-Control-Allow-Headers", "Content-Type, Authorization");
 
     return res;
   }
